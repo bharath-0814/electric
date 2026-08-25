@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import type { EvoraUser } from '../lib/firebase';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, BatteryCharging, Truck } from 'lucide-react';
 
 interface FloatingGlassNavProps {
   currentUser: EvoraUser | null;
+  activeView: 'landing' | 'services';
+  onSelectView: (view: 'landing' | 'services', tab?: 'battery' | 'towing') => void;
   onOpenAuth: () => void;
   onOpenProfile: () => void;
 }
 
 export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
   currentUser,
+  activeView,
+  onSelectView,
   onOpenAuth,
   onOpenProfile,
 }) => {
@@ -19,8 +23,10 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
     <>
       {/* ══════════════ 1. TOP-LEFT SCULPTED GLASS BRANDMARK ══════════════ */}
       <div className="fixed top-5 md:top-6 left-4 md:left-8 z-50 pointer-events-auto">
-        <div
-          className="relative flex items-center gap-3 px-4.5 py-2.5 rounded-2xl font-display text-base font-bold tracking-[0.16em] uppercase text-white shadow-[0_20px_50px_rgba(0,0,0,0.85)] select-none overflow-hidden"
+        <button
+          type="button"
+          onClick={() => onSelectView('landing')}
+          className="relative flex items-center gap-3 px-4.5 py-2.5 rounded-2xl font-display text-base font-bold tracking-[0.16em] uppercase text-white shadow-[0_20px_50px_rgba(0,0,0,0.85)] cursor-pointer select-none overflow-hidden transition-all duration-300 hover:scale-105"
           style={{
             background: 'rgba(14, 15, 24, 0.82)',
             backdropFilter: 'blur(36px) saturate(220%)',
@@ -37,15 +43,15 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
           <span className="hidden sm:inline text-[9px] font-mono tracking-widest text-[#00FF9D] bg-[#00FF9D]/10 border border-[#00FF9D]/20 px-2 py-0.5 rounded-md">
             800V
           </span>
-        </div>
+        </button>
       </div>
 
       {/* ══════════════ 2. TOP-MIDDLE LIQUID GLASS CAPSULE ══════════════ */}
       <header className="fixed top-5 md:top-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center pointer-events-none">
         <div
-          className="pointer-events-auto relative flex items-center gap-3.5 px-5 py-2 md:py-2.5 rounded-2xl md:rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.9)]"
+          className="pointer-events-auto relative flex items-center gap-2 md:gap-3 px-3.5 md:px-5 py-2 md:py-2.5 rounded-2xl md:rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.9)]"
           style={{
-            background: 'rgba(12, 13, 22, 0.86)',
+            background: 'rgba(12, 13, 22, 0.88)',
             backdropFilter: 'blur(48px) saturate(240%)',
             WebkitBackdropFilter: 'blur(48px) saturate(240%)',
             border: '1px solid rgba(255, 255, 255, 0.20)',
@@ -55,14 +61,41 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
         >
           <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#00F0FF]/70 to-transparent rounded-full pointer-events-none" />
 
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="relative px-4 sm:px-5 py-2 rounded-xl font-display text-xs font-bold tracking-[0.14em] uppercase text-white cursor-pointer select-none"
+              onClick={() => onSelectView('landing')}
+              className={`relative px-3 sm:px-4 py-2 rounded-xl font-display text-xs font-bold tracking-[0.12em] uppercase transition-all duration-300 cursor-pointer select-none ${
+                activeView === 'landing' ? 'text-white' : 'text-neutral-400 hover:text-white'
+              }`}
             >
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#0052FF] to-[#00A3FF] border border-[#00F0FF]/60 shadow-[0_0_20px_rgba(0,163,255,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.5)]" />
+              {activeView === 'landing' && (
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#0052FF] to-[#00A3FF] border border-[#00F0FF]/60 shadow-[0_0_20px_rgba(0,163,255,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.5)]" />
+              )}
               <span className="relative z-10">Home</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onSelectView('services', 'battery')}
+              className={`relative px-3 sm:px-4 py-2 rounded-xl font-display text-xs font-bold tracking-[0.12em] uppercase transition-all duration-300 cursor-pointer select-none flex items-center gap-1.5 ${
+                activeView === 'services' ? 'text-white' : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              {activeView === 'services' && (
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#0052FF] to-[#00A3FF] border border-[#00F0FF]/60 shadow-[0_0_20px_rgba(0,163,255,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.5)]" />
+              )}
+              <BatteryCharging className="w-3.5 h-3.5 relative z-10 text-[#00FF9D]" />
+              <span className="relative z-10">Battery & Stations</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onSelectView('services', 'towing')}
+              className="relative px-3 sm:px-4 py-2 rounded-xl font-display text-xs font-bold tracking-[0.12em] uppercase text-neutral-400 hover:text-white transition-all duration-300 cursor-pointer select-none hidden md:flex items-center gap-1.5"
+            >
+              <Truck className="w-3.5 h-3.5 text-[#FF5E00]" />
+              <span>Towing Rescue</span>
             </button>
           </nav>
 
@@ -101,7 +134,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
           </div>
         </div>
 
-        {/* Mobile Dropdown */}
+        {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
           <div
             className="pointer-events-auto absolute top-16 left-1/2 -translate-x-1/2 w-64 p-4 rounded-2xl text-white shadow-2xl flex flex-col gap-3 md:hidden"
@@ -112,6 +145,36 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
               boxShadow: '0 20px 60px rgba(0,0,0,0.9), 0 0 30px rgba(0,240,255,0.15)',
             }}
           >
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onSelectView('landing');
+              }}
+              className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-white py-2 border-b border-white/10 cursor-pointer"
+            >
+              Home Cockpit
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onSelectView('services', 'battery');
+              }}
+              className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-[#00FF9D] py-2 border-b border-white/10 cursor-pointer flex items-center gap-2"
+            >
+              <BatteryCharging className="w-4 h-4" /> Battery & Map
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onSelectView('services', 'towing');
+              }}
+              className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-[#FF5E00] py-2 border-b border-white/10 cursor-pointer flex items-center gap-2"
+            >
+              <Truck className="w-4 h-4" /> Towing Service
+            </button>
             <button
               type="button"
               onClick={() => {
