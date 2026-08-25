@@ -80,7 +80,7 @@ function StatBlock({
         style={{ color: light ? "#fff" : "#0A0A0A" }}
       >
         {n.toLocaleString()}
-        <span style={{ color: "#0052FF" }}>{suffix}</span>
+        <span style={{ color: "#34d399" }}>{suffix}</span>
       </span>
       <Label light={light}>{label}</Label>
     </div>
@@ -88,68 +88,15 @@ function StatBlock({
 }
 
 /* ═══════════════════════════════════════
-   Vehicle Finishes & Dynamic Palettes
+   Static Background Images
 ═══════════════════════════════════════ */
 
-interface VehicleFinish {
-  id: string;
-  name: string;
-  swatchHex: string;
-  glowColor: string;
-  accentColor: string;
-  imageUrl: string;
-}
-
-const VEHICLE_FINISHES: VehicleFinish[] = [
-  {
-    id: 'stealth-onyx',
-    name: 'Stealth Onyx',
-    swatchHex: '#1E1E24',
-    glowColor: 'rgba(0, 82, 255, 0.22)',
-    accentColor: '#0052FF',
-    imageUrl: 'https://images.unsplash.com/photo-1704476944918-c1258561ebb9?w=1920&h=1080&fit=crop&auto=format&q=90',
-  },
-  {
-    id: 'sapphire-blue',
-    name: 'Electric Sapphire',
-    swatchHex: '#2563EB',
-    glowColor: 'rgba(37, 99, 235, 0.35)',
-    accentColor: '#38aaff',
-    imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=1920&h=1080&fit=crop&auto=format&q=90',
-  },
-  {
-    id: 'emerald-cyber',
-    name: 'Emerald Matrix',
-    swatchHex: '#059669',
-    glowColor: 'rgba(16, 185, 129, 0.35)',
-    accentColor: '#34d399',
-    imageUrl: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=1920&h=1080&fit=crop&auto=format&q=90',
-  },
-  {
-    id: 'liquid-copper',
-    name: 'Liquid Copper',
-    swatchHex: '#EA580C',
-    glowColor: 'rgba(234, 88, 12, 0.35)',
-    accentColor: '#fb923c',
-    imageUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1920&h=1080&fit=crop&auto=format&q=90',
-  },
-  {
-    id: 'cyber-violet',
-    name: 'Cyber Violet',
-    swatchHex: '#8B5CF6',
-    glowColor: 'rgba(139, 92, 246, 0.35)',
-    accentColor: '#a78bfa',
-    imageUrl: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=1920&h=1080&fit=crop&auto=format&q=90',
-  },
-];
-
-const NIGHT_IMG   = "https://images.unsplash.com/photo-1748843765943-27ef9aad505d?w=1200&h=900&fit=crop&auto=format&q=90";
-const NEON_IMG    = "https://images.unsplash.com/photo-1776610148977-07b1e2dca438?w=1200&h=900&fit=crop&auto=format&q=90";
+// Static Green Lighted EV Background
+const HERO_GREEN_IMG = "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=1920&h=1080&fit=crop&auto=format&q=90";
+const NIGHT_IMG      = "https://images.unsplash.com/photo-1748843765943-27ef9aad505d?w=1200&h=900&fit=crop&auto=format&q=90";
+const NEON_IMG       = "https://images.unsplash.com/photo-1776610148977-07b1e2dca438?w=1200&h=900&fit=crop&auto=format&q=90";
 
 export default function Signinpage() {
-  // Vehicle selected finish state
-  const [selectedFinish, setSelectedFinish] = useState<VehicleFinish>(VEHICLE_FINISHES[0]);
-
   // User auth state
   const [currentUser, setCurrentUser] = useState<EvoraUser | null>(null);
 
@@ -202,34 +149,29 @@ export default function Signinpage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
 
-      {/* ══════════════ MASTER FLOATING LIQUID GLASS PILLBAR (TOP LEFT) ══════════════ */}
+      {/* ══════════════ FLOATING NAVIGATION: EVORA (TOP LEFT) & PILLBAR (TOP MIDDLE) ══════════════ */}
       <FloatingGlassNav
         currentUser={currentUser}
         onOpenAuth={() => handleRequireAuth("Sign in with Google to access your cloud profile & vehicle specs.")}
         onOpenProfile={() => setProfileOpen(true)}
       />
 
-      {/* ══════════════ HERO SECTION (DYNAMIC VEHICLE FINISH CHANGER) ══════════════ */}
+      {/* ══════════════ HERO SECTION (STATIC GREEN LIGHTED BACKGROUND) ══════════════ */}
       <section id="home" className="relative h-screen min-h-175 flex items-end overflow-hidden">
-        {/* Dynamic Cross-Fading Vehicle Images */}
+        {/* Static Green Lighted EV Background */}
         <div className="absolute inset-0 bg-black">
-          {VEHICLE_FINISHES.map((finish) => (
-            <img
-              key={finish.id}
-              src={finish.imageUrl}
-              alt={`${finish.name} vehicle`}
-              className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ease-in-out ${
-                selectedFinish.id === finish.id ? 'opacity-90 scale-100' : 'opacity-0 scale-105 pointer-events-none'
-              }`}
-              style={{ filter: "brightness(0.85)" }}
-            />
-          ))}
+          <img
+            src={HERO_GREEN_IMG}
+            alt="Evora green lighted electric vehicle"
+            className="w-full h-full object-cover object-center"
+            style={{ filter: "brightness(0.85)" }}
+          />
 
-          {/* Dynamic Illumination Aura reflecting selected vehicle finish */}
+          {/* Emerald Green Ambient Illumination Aura */}
           <div
-            className="absolute inset-0 transition-all duration-700 ease-in-out pointer-events-none"
+            className="absolute inset-0 pointer-events-none"
             style={{
-              background: `radial-gradient(circle at 75% 65%, ${selectedFinish.glowColor} 0%, transparent 60%)`,
+              background: "radial-gradient(circle at 75% 60%, rgba(16, 185, 129, 0.38) 0%, transparent 60%)",
             }}
           />
 
@@ -244,7 +186,7 @@ export default function Signinpage() {
         <div className="relative w-full max-w-7xl mx-auto px-8 pb-20">
           <div className="fade-in mb-6" style={{ animationDelay: "200ms" }}>
             <div className="inline-flex items-center gap-3">
-              <span className="w-6 h-px" style={{ background: selectedFinish.accentColor }} />
+              <span className="w-6 h-px bg-[#34d399]" />
               <Label light>Next-Generation EV Charging</Label>
             </div>
           </div>
@@ -263,7 +205,7 @@ export default function Signinpage() {
               className="block overflow-hidden"
               style={{ animation: "maskReveal 1.1s 0.6s cubic-bezier(0.77,0,0.175,1) both" }}
             >
-              <em style={{ fontStyle: "normal", color: selectedFinish.accentColor }}>Next</em> Electric
+              <em style={{ fontStyle: "normal", color: "#34d399" }}>Next</em> Electric
             </span>
             <span
               className="block overflow-hidden"
@@ -284,21 +226,13 @@ export default function Signinpage() {
             <div className="flex items-center gap-4 shrink-0">
               <button
                 onClick={() => scrollToSection("features-section")}
-                className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
-                style={{
-                  background: selectedFinish.accentColor,
-                  color: "#fff",
-                  boxShadow: `0 8px 32px ${selectedFinish.glowColor}`,
-                }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = `0 12px 48px ${selectedFinish.glowColor}`)}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = `0 8px 32px ${selectedFinish.glowColor}`)}
+                className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer text-black bg-[#34d399] hover:bg-[#2ecc71] shadow-[0_8px_32px_rgba(52,211,153,0.4)] hover:shadow-[0_12px_44px_rgba(52,211,153,0.6)]"
               >
                 Explore Features
               </button>
               <button
                 onClick={() => scrollToSection("technology-section")}
-                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase flex items-center gap-2 transition-all duration-300 group cursor-pointer"
-                style={{ color: "rgba(255,255,255,0.7)" }}
+                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase flex items-center gap-2 transition-all duration-300 group cursor-pointer text-white/80 hover:text-white"
               >
                 <span>Our Network</span>
                 <svg
@@ -312,61 +246,7 @@ export default function Signinpage() {
           </div>
         </div>
 
-        {/* ══════════════ INTERACTIVE VEHICLE FINISH SELECTOR ══════════════ */}
-        <div
-          className="absolute bottom-20 right-8 md:right-16 hidden lg:flex items-center gap-4 z-20"
-          style={{ animation: "fadeIn 0.8s 1.8s ease both" }}
-        >
-          {/* Liquid Glass Finish Selector Capsule */}
-          <div
-            className="flex items-center gap-3 px-4 py-2.5 rounded-full border border-white/16 shadow-[0_20px_50px_rgba(0,0,0,0.85)] transition-all duration-300"
-            style={{
-              background: 'rgba(14, 14, 20, 0.78)',
-              backdropFilter: 'blur(32px) saturate(220%)',
-              WebkitBackdropFilter: 'blur(32px) saturate(220%)',
-              boxShadow: '0 20px 50px -10px rgba(0,0,0,0.8), inset 0 1px 1.5px rgba(255,255,255,0.35)',
-            }}
-          >
-            <span className="text-[10px] font-display font-bold uppercase tracking-widest text-neutral-400">
-              Color
-            </span>
-
-            {/* Interactive Swatch Dots */}
-            <div className="flex items-center gap-2">
-              {VEHICLE_FINISHES.map((finish) => {
-                const isSelected = selectedFinish.id === finish.id;
-                return (
-                  <button
-                    key={finish.id}
-                    type="button"
-                    onClick={() => setSelectedFinish(finish)}
-                    className={`w-6 h-6 rounded-full transition-all duration-300 cursor-pointer relative flex items-center justify-center ${
-                      isSelected
-                        ? 'scale-125 ring-2 ring-white shadow-[0_0_12px_rgba(255,255,255,0.7)] z-10'
-                        : 'opacity-70 hover:opacity-100 hover:scale-110'
-                    }`}
-                    style={{
-                      background: finish.swatchHex,
-                      border: isSelected ? '2px solid #ffffff' : '1.5px solid rgba(255,255,255,0.3)',
-                    }}
-                    title={`Switch to ${finish.name}`}
-                    aria-label={`Select ${finish.name}`}
-                  />
-                );
-              })}
-            </div>
-
-            <div className="w-[1px] h-4 bg-white/20" />
-
-            <div className="flex flex-col">
-              <span className="text-[11px] font-display font-bold text-white leading-tight">
-                {selectedFinish.name}
-              </span>
-              <span className="text-[9px] font-mono text-neutral-400">102K+ Reviews</span>
-            </div>
-          </div>
-        </div>
-
+        {/* Scroll indicator */}
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
           onClick={() => scrollToSection("stats-section")}
