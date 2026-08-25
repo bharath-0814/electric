@@ -9,7 +9,6 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Home', targetId: 'home' },
-  { label: 'Features', targetId: 'features-section' },
   { label: 'Network', targetId: 'technology-section' },
 ];
 
@@ -115,7 +114,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
                   onClick={() => handleScrollTo(item.targetId)}
                   onMouseEnter={() => setHoveredSection(item.targetId)}
                   onMouseLeave={() => setHoveredSection(null)}
-                  className={`relative px-4.5 py-2 rounded-full font-display text-xs font-bold tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer select-none ${
+                  className={`relative px-5 py-2 rounded-full font-display text-xs font-bold tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer select-none ${
                     isActive ? 'text-white' : 'text-neutral-300 hover:text-white'
                   }`}
                 >

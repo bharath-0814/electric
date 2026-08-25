@@ -107,7 +107,6 @@ export default function Signinpage() {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const statsSection = useInView<HTMLDivElement>(0.3);
-  const featSection  = useInView<HTMLDivElement>(0.15);
 
   // Sync Firebase / User & Check Redirect Login
   useEffect(() => {
@@ -225,16 +224,16 @@ export default function Signinpage() {
 
             <div className="flex items-center gap-4 shrink-0">
               <button
-                onClick={() => scrollToSection("features-section")}
+                onClick={() => scrollToSection("technology-section")}
                 className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer text-black bg-[#34d399] hover:bg-[#2ecc71] shadow-[0_8px_32px_rgba(52,211,153,0.4)] hover:shadow-[0_12px_44px_rgba(52,211,153,0.6)]"
               >
-                Explore Features
+                Our Network
               </button>
               <button
                 onClick={() => scrollToSection("technology-section")}
                 className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase flex items-center gap-2 transition-all duration-300 group cursor-pointer text-white/80 hover:text-white"
               >
-                <span>Our Network</span>
+                <span>Technology</span>
                 <svg
                   width="16" height="16" viewBox="0 0 16 16" fill="none"
                   className="transition-transform duration-300 group-hover:translate-x-1"
@@ -273,103 +272,7 @@ export default function Signinpage() {
         </div>
       </section>
 
-      {/* ══════════════ FEATURES ══════════════ */}
-      <section
-        id="features-section"
-        ref={featSection.ref}
-        className="py-28"
-      >
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-8 mb-16 pb-8 border-b" style={{ borderColor: "rgba(0,0,0,0.07)" }}>
-            <div>
-              <Label className="block mb-3">What Sets Us Apart</Label>
-              <h2
-                className="font-display font-bold text-[#0A0A0A] leading-tight"
-                style={{
-                  fontSize: "clamp(26px, 3.5vw, 48px)",
-                  opacity: featSection.visible ? 1 : 0,
-                  animation: featSection.visible ? "fadeUp 0.7s 0.1s both" : "none",
-                }}
-              >
-                Engineered
-                <br />for the road
-                <br />ahead.
-              </h2>
-            </div>
-            <div />
-            <div className="flex justify-end items-end">
-              <button
-                onClick={() => scrollToSection("technology-section")}
-                className="font-display font-bold text-[11px] tracking-[0.15em] uppercase flex items-center gap-2 group transition-colors duration-300 cursor-pointer"
-                style={{ color: "#0052FF" }}
-              >
-                <span>Our Network</span>
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
-                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-col divide-y" style={{ "--divide-color": "rgba(0,0,0,0.06)" } as React.CSSProperties}>
-            {[
-              { num: "01", title: "Ultra-Fast 150-350 kW",   desc: "Dual-gun liquid-cooled DC output sustains peak power for the full session. 200 miles of range in under 15 minutes.",                                                              tag: "Speed"          },
-              { num: "02", title: "Smart Grid Intelligence",   desc: "Real-time AI load balancing draws from renewable sources, reducing your carbon footprint by up to 80% per charge.",                                                                    tag: "Sustainability" },
-              { num: "03", title: "TomTom EV Predictive Availability", desc: "Surface live occupancy, reachable radius, and real-time traffic delay before you leave — so you always arrive to an open gun.",                               tag: "Connectivity"   },
-              { num: "04", title: "Multi-Layer Safety",        desc: "Automatic fault detection, arc suppression, surge protection, and tamper-resistant hardware — monitored around the clock.",                                                              tag: "Safety"         },
-            ].map((f, i) => (
-              <div
-                key={f.num}
-                className="group grid grid-cols-12 items-center gap-6 py-7 cursor-default transition-all duration-300 hover:bg-[#f5f7ff] -mx-4 px-4 rounded-xl"
-                style={{
-                  borderColor: "rgba(0,0,0,0.06)",
-                  opacity: featSection.visible ? 1 : 0,
-                  animation: featSection.visible ? `fadeUp 0.55s ${i * 90 + 150}ms both` : "none",
-                }}
-              >
-                <span
-                  className="col-span-1 font-mono font-bold text-xs tracking-[0.2em] tabular-nums"
-                  style={{ color: "#C8C8C8" }}
-                >
-                  {f.num}
-                </span>
-
-                <h3
-                  className="col-span-12 md:col-span-3 font-display font-bold text-lg leading-snug transition-colors duration-300 group-hover:text-[#0052FF]"
-                  style={{ color: "#0A0A0A" }}
-                >
-                  {f.title}
-                </h3>
-
-                <p
-                  className="col-span-12 md:col-span-5 text-sm leading-relaxed"
-                  style={{ color: "#717171" }}
-                >
-                  {f.desc}
-                </p>
-
-                <div className="col-span-12 md:col-span-3 flex items-center justify-between md:justify-end gap-4">
-                  <span
-                    className="font-display text-[10px] font-bold tracking-[0.18em] uppercase px-3 py-1.5 rounded-full"
-                    style={{ background: "rgba(0,82,255,0.07)", color: "#0052FF" }}
-                  >
-                    {f.tag}
-                  </span>
-                  <svg
-                    width="16" height="16" viewBox="0 0 16 16" fill="none"
-                    className="opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1 shrink-0"
-                    style={{ color: "#0052FF" }}
-                  >
-                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════ SPLIT SHOWCASE ══════════════ */}
+      {/* ══════════════ SPLIT SHOWCASE / TECHNOLOGY & NETWORK ══════════════ */}
       <section id="technology-section" className="bg-[#0A0A0A] overflow-hidden">
         <div className="max-w-7xl mx-auto px-8 py-28 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div
@@ -442,20 +345,20 @@ export default function Signinpage() {
 
             <div>
               <button
-                onClick={() => scrollToSection("features-section")}
+                onClick={() => handleRequireAuth("Sign in to connect with Evora and unlock high-power charging.")}
                 className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
                 style={{ background: "#0052FF", color: "#fff", boxShadow: "0 8px 32px rgba(0,82,255,0.35)" }}
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 44px rgba(0,82,255,0.55)")}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,82,255,0.35)")}
               >
-                Explore Features
+                Connect with Evora
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ══════════════ SECOND IMAGE ROW ══════════════ */}
+      {/* ══════════════ SECOND IMAGE ROW / NETWORK OVERVIEW ══════════════ */}
       <section className="py-32 max-w-7xl mx-auto px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="relative rounded-2xl overflow-hidden aspect-4/3"
@@ -501,7 +404,7 @@ export default function Signinpage() {
             </div>
 
             <button
-              onClick={() => scrollToSection("features-section")}
+              onClick={() => scrollToSection("technology-section")}
               className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full w-fit border-2 transition-all duration-300 active:scale-95 group cursor-pointer"
               style={{ borderColor: "#0A0A0A", color: "#0A0A0A" }}
               onMouseEnter={e => {
@@ -513,7 +416,7 @@ export default function Signinpage() {
                 e.currentTarget.style.color = "#0A0A0A";
               }}
             >
-              Explore Features
+              Our Network
             </button>
           </div>
         </div>
@@ -535,21 +438,18 @@ export default function Signinpage() {
 
           {/* Links */}
           {[
-            { title: "Product", links: ["Features", "Network", "Pricing", "App"] },
-            { title: "Company", links: ["About", "Careers", "Press", "Blog"] },
-            { title: "Support", links: ["Help Center", "Contact", "Status", "Terms"] },
+            { title: "Product", links: ["Network", "Technology", "Pricing", "App"] },
+            { title: "Company", links: ["Careers", "Press", "Blog"] },
+            { title: "Support", links: ["Help Center", "Status", "Terms"] },
           ].map((col) => (
             <div key={col.title} className="flex flex-col gap-4">
               <Label>{col.title}</Label>
               {col.links.map((l) => (
                 <a
                   key={l}
-                  href={l === "Features" ? "#features-section" : l === "Network" ? "#technology-section" : "#"}
+                  href={l === "Network" || l === "Technology" ? "#technology-section" : "#"}
                   onClick={(e) => {
-                    if (l === "Features") {
-                      e.preventDefault();
-                      scrollToSection("features-section");
-                    } else if (l === "Network") {
+                    if (l === "Network" || l === "Technology") {
                       e.preventDefault();
                       scrollToSection("technology-section");
                     }
