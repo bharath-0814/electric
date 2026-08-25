@@ -10,9 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Leaflet Map CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Official TomTom Maps SDK for Web v6 -->
+  <link rel="stylesheet" type="text/css" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css"/>
+  <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js"></script>
   
   <!-- App Stylesheet -->
   <link rel="stylesheet" href="style.css">
@@ -61,7 +61,7 @@
           </div>
           <div class="brand-text">
             <span class="brand-title">VOLTRIX</span>
-            <span class="brand-sub">EV INTELLIGENCE</span>
+            <span class="brand-sub">TOMTOM EV MAPS</span>
           </div>
         </div>
 
@@ -71,9 +71,9 @@
             <span class="pulse-dot green"></span>
             <span class="badge-text" id="db-status-text">Turso SQL Online</span>
           </div>
-          <div class="badge badge-tomtom" title="TomTom EV Routing Engine">
+          <div class="badge badge-tomtom" title="TomTom Web SDK 6.x">
             <span class="pulse-dot cyan"></span>
-            <span class="badge-text">TomTom Live API</span>
+            <span class="badge-text">TomTom SDK v6</span>
           </div>
         </div>
       </div>
@@ -140,7 +140,7 @@
       </div>
     </header>
 
-    <!-- Main Body: Sidebar + Interactive Map -->
+    <!-- Main Body: Sidebar + TomTom Map -->
     <div class="main-container">
       <!-- Left Glass Sidebar -->
       <aside class="sidebar-panel">
@@ -227,7 +227,7 @@
           <div class="stations-list" id="stations-list">
             <div class="loading-state">
               <div class="spinner"></div>
-              <span>Scanning live charging networks...</span>
+              <span>Scanning live TomTom EV networks...</span>
             </div>
           </div>
         </div>
@@ -235,7 +235,7 @@
         <!-- TAB 2: EV Route Planner -->
         <div class="tab-content" id="tab-routing">
           <div class="route-panel">
-            <h3 class="section-title">⚡ Intelligent EV Route Calculator</h3>
+            <h3 class="section-title">⚡ Intelligent TomTom EV Route Engine</h3>
             <p class="section-desc">Calculates real-time traffic route with optimal EV charging stops.</p>
 
             <div class="route-inputs">
@@ -268,7 +268,7 @@
                 <polyline points="13 17 18 12 13 7"></polyline>
                 <polyline points="6 17 11 12 6 7"></polyline>
               </svg>
-              <span>Calculate EV Route</span>
+              <span>Calculate TomTom EV Route</span>
             </button>
 
             <!-- Route Result Card -->
@@ -289,7 +289,7 @@
               </div>
               <div class="route-stops-info" id="route-stops">
                 <span class="pulse-dot green"></span>
-                <span>No intermediate charging stops required! Sufficient range.</span>
+                <span>Sufficient range for route with live TomTom traffic!</span>
               </div>
             </div>
           </div>
@@ -310,7 +310,7 @@
                 <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
               <p>No active reservations.</p>
-              <span>Pick any station on the map and reserve a charging slot!</span>
+              <span>Pick any station on the TomTom map and reserve a charging slot!</span>
             </div>
           </div>
         </div>
@@ -333,7 +333,7 @@
         </div>
       </aside>
 
-      <!-- Right Interactive Map Area -->
+      <!-- Right Interactive TomTom Map Area -->
       <main class="map-viewport">
         <div id="map"></div>
 
@@ -352,7 +352,7 @@
               <line x1="1" y1="13" x2="1" y2="11"></line>
             </svg>
           </button>
-          <button class="map-ctrl-btn" id="ctrl-theme" title="Toggle Map Style">
+          <button class="map-ctrl-btn" id="ctrl-theme" title="Toggle TomTom Map Style">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>

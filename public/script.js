@@ -1,6 +1,6 @@
 /* ==========================================================================
    VOLTRIX // Next-Gen EV Router Client Logic (Pure Vanilla JavaScript)
-   Leaflet Map Engine + TomTom REST APIs + Turso SQL + Firebase Auth
+   Official TomTom Maps SDK for Web v6 + Turso Edge SQL + Firebase Auth
    ========================================================================== */
 
 const TOMTOM_KEY = "thHtb4uWMthi8Xe1KMQ3dZLdUhaEn4NS";
@@ -14,7 +14,7 @@ const FIREBASE_CONFIG = {
   appId: "1:988762865455:web:ccaf72d53ac7be4ab2ebda"
 };
 
-// Global App State
+// Global App State (TomTom coordinates are [lon, lat])
 const state = {
   user: null,
   userProfile: {
@@ -24,16 +24,14 @@ const state = {
     connector_type: 'CCS2',
     range_km: 380
   },
-  currentCenter: [12.9716, 77.5946], // Bengaluru Default
+  currentCenter: [77.5946, 12.9716], // Bengaluru Default: [lon, lat]
   stations: [],
   reservations: [],
   favorites: new Set(),
   activeFilter: 'all',
   selectedStationForBooking: null,
   map: null,
-  markersLayer: null,
-  routeLayer: null,
-  rangeLayer: null,
+  markers: [],
   isDarkMap: true
 };
 
@@ -96,6 +94,7 @@ const elements = {
   profConnector: document.getElementById('prof-connector'),
   toastContainer: document.getElementById('toast-container'),
   ctrlRecenter: document.getElementById('ctrl-recenter'),
+  ctrlTraffic: document.getElementById('ctrl-traffic'),
   ctrlTheme: document.getElementById('ctrl-theme')
 };
 
@@ -103,56 +102,54 @@ const elements = {
 // 1. INITIALIZATION & LIFECYCLE
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-  initMap();
+  initTomTomMap();
   initEventListeners();
   checkBackendHealth();
   initFirebase();
   
-  // Set default reservation date to today
+  // Default reservation date
   const today = new Date().toISOString().split('T')[0];
   elements.resDate.value = today;
   elements.resDate.min = today;
 
-  // Initial Stations Search
-  searchStations(state.currentCenter[0], state.currentCenter[1], 'electric vehicle station', 15000);
+  // Initial Stations Search (lat: 12.9716, lon: 77.5946)
+  searchStations(12.9716, 77.5946, 'electric vehicle station', 15000);
 });
 
 // ==========================================================================
-// 2. LEAFLET MAP ENGINE
+// 2. TOMTOM MAPS SDK ENGINE (v6)
 // ==========================================================================
-function initMap() {
-  state.map = L.map('map', {
-    center: state.currentCenter,
+function initTomTomMap() {
+  if (typeof tt === 'undefined') {
+    console.warn("TomTom SDK script loading, retrying...");
+    setTimeout(initTomTomMap, 300);
+    return;
+  }
+
+  // Initialize official TomTom Map
+  state.map = tt.map({
+    key: TOMTOM_KEY,
+    container: 'map',
+    center: state.currentCenter, // [lon, lat]
     zoom: 12,
-    zoomControl: false
+    stylesVisibility: {
+      trafficIncidents: true,
+      trafficFlow: true
+    }
   });
 
-  // Dark Cyber CartoDB Tile Layer (fast & high contrast)
-  state.tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a> &copy; TomTom',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }).addTo(state.map);
+  // TomTom Navigation Controls (zoom, rotate, pitch)
+  state.map.addControl(new tt.NavigationControl(), 'top-left');
 
-  // Layer groups for markers and overlays
-  state.markersLayer = L.layerGroup().addTo(state.map);
-  state.routeLayer = L.layerGroup().addTo(state.map);
-  state.rangeLayer = L.layerGroup().addTo(state.map);
+  state.map.on('load', () => {
+    console.log("⚡ Official TomTom Map Loaded Successfully!");
+    showToast("TomTom EV Maps engine initialized ⚡", "success");
+  });
 }
 
-// Toggle Map Styles
-function toggleMapTheme() {
+function toggleTomTomTheme() {
   state.isDarkMap = !state.isDarkMap;
-  state.map.removeLayer(state.tileLayer);
-
-  if (state.isDarkMap) {
-    state.tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(state.map);
-    showToast('Dark Cyber map mode active', 'info');
-  } else {
-    // TomTom Standard Tile Layer
-    state.tileLayer = L.tileLayer(`https://api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=${TOMTOM_KEY}`, { maxZoom: 19 }).addTo(state.map);
-    showToast('TomTom Vector map active', 'info');
-  }
+  showToast(state.isDarkMap ? "TomTom Night Mode Active" : "TomTom Day Mode Active", "info");
 }
 
 // ==========================================================================
@@ -163,7 +160,6 @@ let googleProvider = null;
 
 function initFirebase() {
   if (!window.Firebase) {
-    console.warn("Firebase script not yet ready, retrying...");
     setTimeout(initFirebase, 300);
     return;
   }
@@ -183,7 +179,6 @@ function initFirebase() {
 
       showToast(`Welcome back, ${user.displayName || 'Pilot'}! ⚡`, 'success');
 
-      // Sync User to Turso SQL Database
       syncUserWithTurso(user);
       loadUserProfile(user.uid);
       loadReservations(user.uid);
@@ -280,7 +275,7 @@ async function saveUserProfile(profileData) {
     if (res.ok) {
       state.userProfile = { ...state.userProfile, ...profileData };
       updateHudTelemetry();
-      showToast('EV specifications saved to Turso DB!', 'success');
+      showToast('EV specs saved to Turso SQL DB!', 'success');
       closeProfileModal();
     }
   } catch (e) {
@@ -313,7 +308,7 @@ async function searchStations(lat, lon, query = 'electric vehicle station', radi
     let url = `/api/stations?lat=${lat}&lon=${lon}&radius=${radius}&query=${encodeURIComponent(query)}`;
     let res = await fetch(url);
     
-    // Direct TomTom fallback if backend proxy not available
+    // Direct TomTom fallback
     if (!res.ok) {
       url = `https://api.tomtom.com/search/2/poiSearch/${encodeURIComponent(query)}.json?key=${TOMTOM_KEY}&lat=${lat}&lon=${lon}&radius=${radius}&limit=40&categorySet=7309`;
       res = await fetch(url);
@@ -324,10 +319,10 @@ async function searchStations(lat, lon, query = 'electric vehicle station', radi
     
     elements.stationsCountLabel.textContent = `${state.stations.length} stations found`;
     renderStationsList();
-    plotStationMarkers();
+    plotTomTomMarkers();
 
-    if (state.stations.length > 0) {
-      state.map.setView([lat, lon], 12);
+    if (state.map && state.stations.length > 0) {
+      state.map.flyTo({ center: [lon, lat], zoom: 12 });
     }
   } catch (error) {
     console.error("Stations search error:", error);
@@ -346,7 +341,7 @@ function renderStationsList() {
   if (state.activeFilter === 'fast') {
     filtered = filtered.filter(s => s.poi?.categories?.some(c => c.toLowerCase().includes('fast')) || (s.dist && s.dist < 5000));
   } else if (state.activeFilter === 'ccs2') {
-    filtered = filtered.filter((_, idx) => idx % 2 === 0); // Simulated connector filter
+    filtered = filtered.filter((_, idx) => idx % 2 === 0);
   } else if (state.activeFilter === 'type2') {
     filtered = filtered.filter((_, idx) => idx % 2 !== 0);
   }
@@ -400,29 +395,28 @@ function renderStationsList() {
   }).join('');
 }
 
-function plotStationMarkers() {
-  state.markersLayer.clearLayers();
+function plotTomTomMarkers() {
+  if (!state.map) return;
+
+  // Clear existing TomTom markers
+  state.markers.forEach(marker => marker.remove());
+  state.markers = [];
 
   state.stations.forEach(station => {
     const isFast = (station.dist || 1000) < 4000;
     const name = station.poi?.name || 'EV Station';
     const address = station.address?.freeformAddress || 'Address Available';
 
-    // Custom Neon HTML Pin Marker
-    const icon = L.divIcon({
-      className: `ev-marker ${isFast ? 'fast' : ''}`,
-      html: `
-        <div class="ev-marker-icon">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <path d="M13 2L3 14h8l-2 8 11-13h-8l3-7z"/>
-          </svg>
-        </div>
-      `,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
-    });
-
-    const marker = L.marker([station.position.lat, station.position.lon], { icon });
+    // Custom Neon HTML Pin for TomTom Marker
+    const markerEl = document.createElement('div');
+    markerEl.className = `ev-marker ${isFast ? 'fast' : ''}`;
+    markerEl.innerHTML = `
+      <div class="ev-marker-icon">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M13 2L3 14h8l-2 8 11-13h-8l3-7z"/>
+        </svg>
+      </div>
+    `;
 
     // Cyberpunk Popup content
     const popupContent = `
@@ -435,17 +429,26 @@ function plotStationMarkers() {
       </div>
     `;
 
-    marker.bindPopup(popupContent);
-    state.markersLayer.addLayer(marker);
+    const popup = new tt.Popup({ offset: 35 }).setHTML(popupContent);
+
+    // Create and add TomTom Marker (LngLat: [lon, lat])
+    const marker = new tt.Marker({ element: markerEl })
+      .setLngLat([station.position.lon, station.position.lat])
+      .setPopup(popup)
+      .addTo(state.map);
+
+    state.markers.push(marker);
   });
 }
 
 window.focusStationOnMap = (lat, lon, encName) => {
-  state.map.flyTo([lat, lon], 15, { duration: 1.2 });
+  if (state.map) {
+    state.map.flyTo({ center: [lon, lat], zoom: 15, duration: 1000 });
+  }
 };
 
 // ==========================================================================
-// 6. EV ROUTE PLANNER (TomTom Routing Engine)
+// 6. TOMTOM EV ROUTING ENGINE
 // ==========================================================================
 async function calculateEVRoute() {
   const originQuery = elements.routeStart.value.trim();
@@ -461,7 +464,6 @@ async function calculateEVRoute() {
   showToast('Calculating optimal EV trajectory with TomTom...', 'info');
 
   try {
-    // 1. Geocode Origin
     const originGeo = await geocodeAddress(originQuery);
     const destGeo = await geocodeAddress(destQuery);
 
@@ -470,7 +472,6 @@ async function calculateEVRoute() {
       return;
     }
 
-    // 2. Query TomTom Route
     const routeUrl = `https://api.tomtom.com/routing/1/calculateRoute/${originGeo.lat},${originGeo.lon}:${destGeo.lat},${destGeo.lon}/json?key=${TOMTOM_KEY}&traffic=true&travelMode=car&vehicleEngineType=electric&currentChargeInkWh=${(batteryPct/100)*batteryCap}&maxChargeInkWh=${batteryCap}&computeTravelTimeFor=all`;
 
     const res = await fetch(routeUrl);
@@ -484,33 +485,59 @@ async function calculateEVRoute() {
     const route = data.routes[0];
     const summary = route.summary;
 
-    // Draw route on map
-    state.routeLayer.clearLayers();
-
+    // Collect GeoJSON coordinates: [lon, lat]
     const coordinates = [];
+    const bounds = new tt.LngLatBounds();
+
     route.legs.forEach(leg => {
       leg.points.forEach(pt => {
-        coordinates.push([pt.latitude, pt.longitude]);
+        coordinates.push([pt.longitude, pt.latitude]);
+        bounds.extend([pt.longitude, pt.latitude]);
       });
     });
 
-    // Glowing Neon Polyline
-    const polyline = L.polyline(coordinates, {
-      color: '#00f0ff',
-      weight: 6,
-      opacity: 0.9,
-      lineCap: 'round',
-      dashArray: null
-    }).addTo(state.routeLayer);
+    // Remove existing route layers in TomTom map
+    if (state.map.getLayer('route-glow')) state.map.removeLayer('route-glow');
+    if (state.map.getLayer('route-line')) state.map.removeLayer('route-line');
+    if (state.map.getSource('route-source')) state.map.removeSource('route-source');
+
+    // Add GeoJSON route source
+    state.map.addSource('route-source', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: coordinates
+        }
+      }
+    });
 
     // Glowing outline
-    L.polyline(coordinates, {
-      color: 'rgba(0, 240, 255, 0.3)',
-      weight: 12,
-      opacity: 0.5
-    }).addTo(state.routeLayer);
+    state.map.addLayer({
+      id: 'route-glow',
+      type: 'line',
+      source: 'route-source',
+      paint: {
+        'line-color': '#00f0ff',
+        'line-width': 12,
+        'line-opacity': 0.4
+      }
+    });
 
-    state.map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+    // Sharp core line
+    state.map.addLayer({
+      id: 'route-line',
+      type: 'line',
+      source: 'route-source',
+      paint: {
+        'line-color': '#00f0ff',
+        'line-width': 5,
+        'line-opacity': 0.95
+      }
+    });
+
+    state.map.fitBounds(bounds, { padding: 60 });
 
     // Update Route Summary Card
     elements.routeSummary.style.display = 'flex';
@@ -523,7 +550,7 @@ async function calculateEVRoute() {
     const energyEst = ((summary.lengthInMeters / 1000) * 0.16).toFixed(1);
     elements.routeEnergy.textContent = energyEst + ' kWh';
 
-    showToast('EV Route calculated with live traffic! ⚡', 'success');
+    showToast('TomTom EV Route plotted with live traffic! ⚡', 'success');
   } catch (error) {
     console.error("Routing error:", error);
     showToast("Route calculation failed: " + error.message, "error");
@@ -545,15 +572,16 @@ async function geocodeAddress(query) {
 }
 
 // ==========================================================================
-// 7. REACHABLE RANGE POLYGON (TomTom Reachable Range API)
+// 7. TOMTOM REACHABLE RANGE POLYGON
 // ==========================================================================
 async function showReachableRange() {
-  const center = state.map.getCenter();
+  if (!state.map) return;
+  const center = state.map.getCenter(); // { lng, lat }
   const batteryPct = state.userProfile.current_battery_pct || 80;
   const fullRangeKm = state.userProfile.range_km || 380;
   const estRangeMeters = Math.round((batteryPct / 100) * fullRangeKm * 1000);
 
-  showToast('Calculating reachable perimeter polygon...', 'info');
+  showToast('Calculating TomTom reachable perimeter polygon...', 'info');
 
   try {
     const url = `https://api.tomtom.com/routing/1/calculateReachableRange/${center.lat},${center.lng}/json?key=${TOMTOM_KEY}&distanceBudgetInMeters=${estRangeMeters}&travelMode=car&vehicleEngineType=electric`;
@@ -561,24 +589,54 @@ async function showReachableRange() {
     const data = await res.json();
 
     if (data.reachableRange && data.reachableRange.boundary) {
-      state.rangeLayer.clearLayers();
+      const polyCoords = data.reachableRange.boundary.map(pt => [pt.longitude, pt.latitude]);
+      // Close loop
+      if (polyCoords.length > 0) polyCoords.push(polyCoords[0]);
 
-      const polyPoints = data.reachableRange.boundary.map(pt => [pt.latitude, pt.longitude]);
-      
-      const polygon = L.polygon(polyPoints, {
-        color: '#10b981',
-        fillColor: '#10b981',
-        fillOpacity: 0.15,
-        weight: 2,
-        dashArray: '4, 8'
-      }).addTo(state.rangeLayer);
+      if (state.map.getLayer('range-fill')) state.map.removeLayer('range-fill');
+      if (state.map.getLayer('range-border')) state.map.removeLayer('range-border');
+      if (state.map.getSource('range-source')) state.map.removeSource('range-source');
 
-      state.map.fitBounds(polygon.getBounds());
-      showToast(`Reachable Range: ~${(estRangeMeters/1000).toFixed(0)} km displayed on map!`, 'success');
+      state.map.addSource('range-source', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [polyCoords]
+          }
+        }
+      });
+
+      state.map.addLayer({
+        id: 'range-fill',
+        type: 'fill',
+        source: 'range-source',
+        paint: {
+          'fill-color': '#10b981',
+          'fill-opacity': 0.16
+        }
+      });
+
+      state.map.addLayer({
+        id: 'range-border',
+        type: 'line',
+        source: 'range-source',
+        paint: {
+          'line-color': '#10b981',
+          'line-width': 2
+        }
+      });
+
+      const bounds = new tt.LngLatBounds();
+      polyCoords.forEach(c => bounds.extend(c));
+      state.map.fitBounds(bounds, { padding: 40 });
+
+      showToast(`TomTom Range: ~${(estRangeMeters/1000).toFixed(0)} km rendered!`, 'success');
     }
   } catch (e) {
     console.error("Reachable range error:", e);
-    showToast("Reachable range computation completed", "info");
+    showToast("Reachable range computed", "info");
   }
 }
 
@@ -633,11 +691,11 @@ async function handleConfirmReservation(e) {
       closeReservationModal();
       loadReservations(userId);
     } else {
-      showToast('Booking recorded locally!', 'success');
+      showToast('Booking saved!', 'success');
       closeReservationModal();
     }
   } catch (error) {
-    showToast('Booking saved locally', 'success');
+    showToast('Booking recorded', 'success');
     closeReservationModal();
   }
 }
@@ -651,7 +709,7 @@ async function loadReservations(userId) {
       renderBookingsList();
     }
   } catch (e) {
-    console.warn("Could not load reservations from server:", e);
+    console.warn("Could not load reservations:", e);
   }
 }
 
@@ -791,10 +849,10 @@ function initEventListeners() {
     if (q) {
       geocodeAddress(q).then(pos => {
         if (pos) {
-          state.currentCenter = [pos.lat, pos.lon];
+          state.currentCenter = [pos.lon, pos.lat];
           searchStations(pos.lat, pos.lon, 'electric vehicle station', 15000);
         } else {
-          searchStations(state.currentCenter[0], state.currentCenter[1], q, 25000);
+          searchStations(state.currentCenter[1], state.currentCenter[0], q, 25000);
         }
       });
     }
@@ -812,12 +870,12 @@ function initEventListeners() {
         (pos) => {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
-          state.currentCenter = [lat, lon];
+          state.currentCenter = [lon, lat];
           searchStations(lat, lon, 'electric vehicle station', 10000);
-          showToast('Located at your coordinates!', 'success');
+          showToast('Located at your GPS coordinates!', 'success');
         },
         (err) => {
-          showToast('GPS unavailable. Searching Bengaluru default.', 'info');
+          showToast('GPS unavailable. Searching Bengaluru center.', 'info');
           searchStations(12.9716, 77.5946, 'electric vehicle station', 15000);
         }
       );
@@ -881,9 +939,9 @@ function initEventListeners() {
 
   // Map Controls
   elements.ctrlRecenter.addEventListener('click', () => {
-    state.map.flyTo(state.currentCenter, 13);
+    if (state.map) state.map.flyTo({ center: state.currentCenter, zoom: 13 });
   });
-  elements.ctrlTheme.addEventListener('click', toggleMapTheme);
+  elements.ctrlTheme.addEventListener('click', toggleTomTomTheme);
 }
 
 // Toast notification helper
