@@ -1,23 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700;1,800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
-/* ── Global Typography & Base ── */
+/* ═══════════════════════════════════════
+   Global Variables & Color Palette
+═══════════════════════════════════════ */
 :root {
-  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
-  --ink:      #0A0A0A;
-  --ink-2:    #3A3A3A;
-  --ink-3:    #717171;
-  --paper:    #FAFAFA;
-  --blue:     #0052FF;
-  --blue-dim: rgba(0,82,255,0.08);
-  --rule:     rgba(0,0,0,0.08);
-  --rule-inv: rgba(255,255,255,0.12);
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-tech: 'Space Grotesk', -apple-system, sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+
+  --electric-blue: #0052FF;
+  --electric-cyan: #00F0FF;
+  --emerald-neon:  #00FF9D;
+  --emerald-deep:  #059669;
+  --amber-glow:    #FF9900;
+  --violet-glow:   #A855F7;
+
+  --bg-deep:   #060609;
+  --bg-card:   rgba(14, 14, 22, 0.85);
+  --bg-glass:  rgba(22, 22, 34, 0.65);
+  --border-glass: rgba(255, 255, 255, 0.16);
 }
 
 *, *::before, *::after {
@@ -25,118 +33,160 @@
   margin: 0;
   padding: 0;
   font-family: var(--font-main);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 html {
   scroll-behavior: smooth;
-  font-family: var(--font-main);
+  background: var(--bg-deep);
+  color: #FFFFFF;
 }
 
 body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-main);
+  background: var(--bg-deep);
+  color: #FFFFFF;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6, p, span, a, button, input, select, textarea {
-  font-family: var(--font-main);
+/* ═══════════════════════════════════════
+   Diagonal & Chamfered Glass Geometries
+═══════════════════════════════════════ */
+
+/* Diagonal Cut Corner Clip Paths */
+.clip-diagonal-tr {
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
 }
 
-.font-display {
-  font-family: var(--font-main) !important;
+.clip-diagonal-bl-tr {
+  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
 }
 
-.font-mono {
-  font-family: 'JetBrains Mono', monospace !important;
+.clip-chamfer-pill {
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
 }
 
-/* ── Custom Liquid Scrollbar ── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { 
-  background: rgba(255,255,255,0.25); 
-  border-radius: 9999px; 
-}
-::-webkit-scrollbar-thumb:hover { 
-  background: rgba(255,255,255,0.4); 
+/* Diagonal Grid Patterns */
+.bg-diagonal-mesh {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.03) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.03) 75%);
 }
 
-/* ── Liquid Glass Materials ── */
-.liquid-glass {
-  background: rgba(14, 14, 20, 0.84);
+.bg-dot-matrix {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ═══════════════════════════════════════
+   Liquid Glass & Prismatic Effects
+═══════════════════════════════════════ */
+
+.liquid-glass-surface {
+  background: rgba(14, 15, 24, 0.78);
   backdrop-filter: blur(48px) saturate(240%);
   -webkit-backdrop-filter: blur(48px) saturate(240%);
   border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 
-    0 32px 90px -10px rgba(0, 0, 0, 0.85),
-    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.7),
-    0 0 45px rgba(0, 82, 255, 0.15);
+    0 30px 90px -15px rgba(0, 0, 0, 0.9),
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.65),
+    0 0 45px rgba(0, 240, 255, 0.12);
 }
 
-.liquid-glass-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.liquid-glass-input:focus {
-  border-color: #0052FF;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 4px rgba(0, 82, 255, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-}
-
-/* ── Keyframes ── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1);    }
+.liquid-glass-card {
+  background: rgba(18, 20, 32, 0.72);
+  backdrop-filter: blur(40px) saturate(220%);
+  -webkit-backdrop-filter: blur(40px) saturate(220%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    0 20px 60px -10px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.35),
+    0 0 30px rgba(0, 82, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+.liquid-glass-card:hover {
+  border-color: rgba(0, 240, 255, 0.45);
+  box-shadow: 
+    0 30px 80px -10px rgba(0, 0, 0, 0.9),
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.5),
+    0 0 50px rgba(0, 240, 255, 0.25);
+  transform: translateY(-4px);
 }
 
-@keyframes maskReveal {
-  from { clip-path: inset(0 100% 0 0); }
-  to   { clip-path: inset(0 0% 0 0);   }
+/* Glowing Border Beam */
+@keyframes borderBeam {
+  0% { offset-distance: 0%; }
+  100% { offset-distance: 100%; }
 }
 
-@keyframes lineExpand {
-  from { transform: scaleX(0); transform-origin: left; }
-  to   { transform: scaleX(1); transform-origin: left; }
+@keyframes pulseNeon {
+  0%, 100% { opacity: 0.8; transform: scale(1); filter: brightness(1); }
+  50% { opacity: 1; transform: scale(1.02); filter: brightness(1.25); }
 }
 
-@keyframes countUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0);    }
+@keyframes floatCaustic {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
 }
 
-@keyframes floatY {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-8px); }
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-@keyframes shimBlue {
-  0%   { background-position: 0%   center; }
-  100% { background-position: 200% center; }
+@keyframes radarScan {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* ── Utility ── */
-.text-gradient {
-  background: linear-gradient(90deg, #0052FF 0%, #38aaff 50%, #0052FF 100%);
-  background-size: 200% auto;
+@keyframes kineticTextGlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ═══════════════════════════════════════
+   Gradient Texts & Shimmers
+═══════════════════════════════════════ */
+
+.text-gradient-hyper {
+  background: linear-gradient(135deg, #FFFFFF 0%, #00FF9D 45%, #00F0FF 80%, #0052FF 100%);
+  background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: shimBlue 5s linear infinite;
+  animation: kineticTextGlow 6s ease infinite;
 }
 
-.fade-up   { animation: fadeUp   0.7s cubic-bezier(0.16,1,0.3,1) both; }
-.fade-in   { animation: fadeIn   0.6s ease both; }
-.mask-in   { animation: maskReveal 1s cubic-bezier(0.77,0,0.175,1) both; }
-.line-grow { animation: lineExpand 0.9s cubic-bezier(0.77,0,0.175,1) both; }
+.text-gradient-cyan {
+  background: linear-gradient(90deg, #00FF9D 0%, #00F0FF 50%, #38aaff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(90deg, #FFE259 0%, #FFA751 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══════════════════════════════════════
+   Custom Scrollbar
+═══════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); }
+::-webkit-scrollbar-thumb { 
+  background: linear-gradient(180deg, #0052FF, #00FF9D); 
+  border-radius: 9999px; 
+}
+::-webkit-scrollbar-thumb:hover { 
+  background: linear-gradient(180deg, #00F0FF, #00FF9D); 
+}

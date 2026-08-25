@@ -5,11 +5,14 @@ import { Menu, X } from 'lucide-react';
 interface NavItem {
   label: string;
   targetId: string;
+  badge?: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', targetId: 'home' },
-  { label: 'Network', targetId: 'technology-section' },
+  { label: 'Cockpit', targetId: 'home' },
+  { label: 'Powertrain', targetId: 'powertrain-section' },
+  { label: 'Charging', targetId: 'charging-section' },
+  { label: 'Network', targetId: 'network-section' },
 ];
 
 interface FloatingGlassNavProps {
@@ -29,7 +32,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPos = window.scrollY + 280;
+      const scrollPos = window.scrollY + 300;
       for (const item of [...NAV_ITEMS].reverse()) {
         const el = document.getElementById(item.targetId);
         if (el) {
@@ -64,42 +67,49 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
 
   return (
     <>
-      {/* ══════════════ 1. SEPARATE TOP-LEFT EVORA BRANDMARK ══════════════ */}
-      <div className="fixed top-5 md:top-6 left-5 md:left-10 z-50 pointer-events-auto">
+      {/* ══════════════ 1. TOP-LEFT SCULPTED GLASS BRANDMARK ══════════════ */}
+      <div className="fixed top-5 md:top-6 left-4 md:left-8 z-50 pointer-events-auto">
         <button
           type="button"
           onClick={() => handleScrollTo('home')}
-          className="flex items-center gap-2.5 px-4.5 py-2.5 rounded-full font-display text-base md:text-lg font-bold tracking-[0.14em] uppercase text-white transition-all duration-300 hover:scale-105 cursor-pointer shadow-[0_20px_50px_rgba(0,0,0,0.85)] group"
+          className="relative flex items-center gap-3 px-4.5 py-2.5 rounded-2xl font-display text-base font-bold tracking-[0.16em] uppercase text-white transition-all duration-300 hover:scale-105 cursor-pointer shadow-[0_20px_50px_rgba(0,0,0,0.85)] group overflow-hidden"
           style={{
-            background: 'rgba(14, 14, 20, 0.82)',
+            background: 'rgba(14, 15, 24, 0.82)',
             backdropFilter: 'blur(36px) saturate(220%)',
             WebkitBackdropFilter: 'blur(36px) saturate(220%)',
             border: '1px solid rgba(255, 255, 255, 0.18)',
-            boxShadow: '0 20px 50px -10px rgba(0, 0, 0, 0.8), inset 0 1px 1.5px rgba(255, 255, 255, 0.35)',
+            boxShadow: '0 20px 50px -10px rgba(0, 0, 0, 0.85), inset 0 1px 1.5px rgba(255, 255, 255, 0.4), 0 0 25px rgba(0, 240, 255, 0.15)',
           }}
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-[#0052FF] shadow-[0_0_12px_#0052FF] group-hover:scale-125 transition-transform" />
-          <span>
-            <span className="text-[#0052FF]">EV</span>ORA
+          {/* Top specular refraction */}
+          <div className="absolute inset-x-4 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#00F0FF]/80 to-transparent pointer-events-none" />
+
+          <span className="w-2.5 h-2.5 rounded-full bg-[#00FF9D] shadow-[0_0_12px_#00FF9D] animate-pulse" />
+          <span className="flex items-center">
+            <span className="text-[#00F0FF]">EV</span>ORA
+          </span>
+
+          <span className="hidden sm:inline text-[9px] font-mono tracking-widest text-[#00FF9D] bg-[#00FF9D]/10 border border-[#00FF9D]/20 px-2 py-0.5 rounded-md">
+            800V
           </span>
         </button>
       </div>
 
-      {/* ══════════════ 2. FLOATING LIQUID GLASS PILLBAR (TOP MIDDLE) ══════════════ */}
+      {/* ══════════════ 2. TOP-MIDDLE DIAGONAL LIQUID GLASS CAPSULE ══════════════ */}
       <header className="fixed top-5 md:top-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center pointer-events-none">
         <div
-          className="pointer-events-auto relative flex items-center gap-2 md:gap-3 px-3.5 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-500 shadow-[0_24px_70px_rgba(0,0,0,0.85)]"
+          className="pointer-events-auto relative flex items-center gap-2 md:gap-3.5 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl md:rounded-3xl transition-all duration-500 shadow-[0_25px_80px_rgba(0,0,0,0.9)]"
           style={{
-            background: 'rgba(14, 14, 20, 0.84)',
+            background: 'rgba(12, 13, 22, 0.86)',
             backdropFilter: 'blur(48px) saturate(240%)',
             WebkitBackdropFilter: 'blur(48px) saturate(240%)',
-            border: '1px solid rgba(255, 255, 255, 0.18)',
+            border: '1px solid rgba(255, 255, 255, 0.20)',
             boxShadow:
-              '0 24px 70px -10px rgba(0, 0, 0, 0.85), inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.4), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 82, 255, 0.12)',
+              '0 30px 90px -10px rgba(0, 0, 0, 0.95), inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.45), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 240, 255, 0.15)',
           }}
         >
-          {/* Top Edge Specular Refraction Highlight Line */}
-          <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/55 to-transparent rounded-full pointer-events-none" />
+          {/* Top Edge Cyan/White Specular Refraction Highlight Line */}
+          <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#00F0FF]/70 to-transparent rounded-full pointer-events-none" />
 
           {/* Navigation Items */}
           <nav className="flex items-center gap-1.5">
@@ -114,22 +124,22 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
                   onClick={() => handleScrollTo(item.targetId)}
                   onMouseEnter={() => setHoveredSection(item.targetId)}
                   onMouseLeave={() => setHoveredSection(null)}
-                  className={`relative px-5 py-2 rounded-full font-display text-xs font-bold tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer select-none ${
+                  className={`relative px-4 sm:px-5 py-2 rounded-xl font-display text-xs font-bold tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer select-none ${
                     isActive ? 'text-white' : 'text-neutral-300 hover:text-white'
                   }`}
                 >
-                  {/* Active Glowing Glass Pill */}
+                  {/* Active Prismatic Neon Pill */}
                   {isActive && (
                     <div
-                      className="absolute inset-0 rounded-full bg-[#0052FF] border border-[#38aaff]/60 shadow-[0_0_20px_rgba(0,82,255,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.45)] transition-all duration-300"
-                      style={{ animation: 'fadeIn 0.25s ease-out' }}
+                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#0052FF] to-[#00A3FF] border border-[#00F0FF]/60 shadow-[0_0_20px_rgba(0,163,255,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.5)] transition-all duration-300"
+                      style={{ animation: 'fadeIn 0.2s ease-out' }}
                     />
                   )}
 
                   {/* Hover Soft Glass Effect */}
                   {!isActive && isHovered && (
                     <div
-                      className="absolute inset-0 rounded-full bg-white/10 border border-white/15 transition-all duration-200"
+                      className="absolute inset-0 rounded-xl bg-white/10 border border-white/15 transition-all duration-200"
                       style={{ animation: 'fadeIn 0.2s ease-out' }}
                     />
                   )}
@@ -140,26 +150,26 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
             })}
           </nav>
 
-          <div className="w-[1px] h-4.5 bg-white/16" />
+          <div className="w-[1px] h-5 bg-white/20" />
 
-          {/* User Account / Log In */}
-          <div className="flex items-center">
+          {/* User Account / Log In Button */}
+          <div className="flex items-center gap-2">
             {currentUser ? (
               <button
                 type="button"
                 onClick={onOpenProfile}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full font-display text-[11px] font-bold tracking-[0.12em] uppercase text-white bg-[#0052FF]/20 border border-[#0052FF]/50 hover:bg-[#0052FF]/30 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,82,255,0.3)] hover:scale-105"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-display text-[11px] font-bold tracking-[0.12em] uppercase text-white bg-[#00FF9D]/15 border border-[#00FF9D]/40 hover:bg-[#00FF9D]/25 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,255,157,0.25)] hover:scale-105"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
+                <span className="w-2 h-2 rounded-full bg-[#00FF9D] shadow-[0_0_8px_#00FF9D]" />
                 <span className="max-w-[85px] truncate">{currentUser.displayName.split(' ')[0]}</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={onOpenAuth}
-                className="font-display text-[11px] font-bold tracking-[0.14em] uppercase text-neutral-300 hover:text-white px-3 py-1.5 transition-colors cursor-pointer"
+                className="font-display text-[11px] font-bold tracking-[0.14em] uppercase text-white bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-1.5 rounded-xl transition-all hover:scale-105 cursor-pointer shadow-sm"
               >
-                Log In
+                Sign In
               </button>
             )}
 
@@ -167,7 +177,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 ml-1 rounded-full bg-white/[0.06] text-white cursor-pointer"
+              className="md:hidden p-1.5 rounded-xl bg-white/[0.08] text-white cursor-pointer"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -178,12 +188,12 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
         {/* Mobile Glass Dropdown Drawer */}
         {mobileMenuOpen && (
           <div
-            className="pointer-events-auto absolute top-16 left-1/2 -translate-x-1/2 w-64 p-5 rounded-3xl text-white shadow-2xl flex flex-col gap-3 md:hidden"
+            className="pointer-events-auto absolute top-16 left-1/2 -translate-x-1/2 w-72 p-5 rounded-2xl text-white shadow-2xl flex flex-col gap-3 md:hidden"
             style={{
-              background: 'rgba(14, 14, 20, 0.94)',
+              background: 'rgba(12, 13, 22, 0.95)',
               backdropFilter: 'blur(48px) saturate(240%)',
-              border: '1px solid rgba(255, 255, 255, 0.16)',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.9), 0 0 30px rgba(0,82,255,0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.9), 0 0 30px rgba(0,240,255,0.15)',
               animation: 'fadeUp 0.25s ease-out',
             }}
           >
@@ -192,7 +202,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
                 key={item.targetId}
                 type="button"
                 onClick={() => handleScrollTo(item.targetId)}
-                className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-neutral-200 hover:text-white py-1.5 border-b border-white/8 cursor-pointer"
+                className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-neutral-200 hover:text-white py-2 border-b border-white/10 cursor-pointer"
               >
                 {item.label}
               </button>
@@ -204,9 +214,9 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
                 if (currentUser) onOpenProfile();
                 else onOpenAuth();
               }}
-              className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-[#38aaff] py-1.5 cursor-pointer"
+              className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-[#00F0FF] py-2 cursor-pointer"
             >
-              {currentUser ? `My Account (${currentUser.displayName})` : 'Log In / Sign Up'}
+              {currentUser ? `My Account (${currentUser.displayName})` : 'Sign In / Register'}
             </button>
           </div>
         )}

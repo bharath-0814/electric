@@ -98,41 +98,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 md:p-8 bg-black/80 backdrop-blur-2xl transition-all duration-300 overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 md:p-8 bg-black/85 backdrop-blur-2xl transition-all duration-300 overflow-y-auto"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       {/* Dynamic Ambient Background Illumination Behind Modal */}
-      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#0052FF]/20 blur-[120px] pointer-events-none -top-20 -left-20 animate-pulse" />
-      <div className="absolute w-[400px] h-[400px] rounded-full bg-[#34d399]/15 blur-[100px] pointer-events-none -bottom-20 -right-20" />
+      <div className="absolute w-[520px] h-[520px] rounded-full bg-[#0052FF]/25 blur-[140px] pointer-events-none -top-20 -left-20 animate-pulse" />
+      <div className="absolute w-[440px] h-[440px] rounded-full bg-[#00FF9D]/18 blur-[120px] pointer-events-none -bottom-20 -right-20" />
 
       {/* ── ReactBits Liquid Glass Canvas ── */}
       <div
         className="relative w-full max-w-[94vw] sm:max-w-lg md:max-w-[490px] my-auto rounded-[32px] sm:rounded-[36px] p-7 sm:p-9 md:p-10 text-white shadow-[0_35px_120px_-20px_rgba(0,0,0,0.95)] flex flex-col gap-5 sm:gap-6 transition-all duration-300 select-none overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'rgba(15, 15, 24, 0.82)',
+          background: 'rgba(12, 13, 24, 0.84)',
           backdropFilter: 'blur(50px) saturate(240%)',
           WebkitBackdropFilter: 'blur(50px) saturate(240%)',
-          border: '1px solid rgba(255, 255, 255, 0.20)',
+          border: '1px solid rgba(255, 255, 255, 0.22)',
           boxShadow:
-            '0 35px 120px -20px rgba(0, 0, 0, 0.95), inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.45), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.7), 0 0 50px rgba(0, 82, 255, 0.16)',
+            '0 35px 120px -20px rgba(0, 0, 0, 0.95), inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.5), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.7), 0 0 50px rgba(0, 240, 255, 0.18)',
           animation: 'fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
         }}
       >
-        {/* Top Edge Specular Refraction Highlight Line */}
-        <div className="absolute inset-x-10 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none" />
+        {/* Top Edge Specular Cyan Highlight Line */}
+        <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#00F0FF] to-transparent pointer-events-none" />
 
         {/* ── 1. Top Brand & Status Header ── */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
               <div className="font-display text-2xl font-bold tracking-[0.14em] uppercase text-white">
-                <span className="text-[#0052FF]">EV</span>ORA
+                <span className="text-[#00F0FF]">EV</span>ORA
               </div>
-              <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono font-semibold text-neutral-200 bg-white/[0.08] border border-white/15 px-3 py-1 rounded-full shadow-inner">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#38aaff]" /> Turso Cloud SQL
+              <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono font-semibold text-[#00FF9D] bg-[#00FF9D]/10 border border-[#00FF9D]/25 px-3 py-1 rounded-full shadow-inner">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#00FF9D]" /> Turso Cloud SQL
               </span>
             </div>
             <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed max-w-[360px]">
@@ -146,7 +146,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white/8 hover:bg-white/16 text-neutral-400 hover:text-white transition-all flex items-center justify-center cursor-pointer shrink-0 border border-white/12 hover:scale-105"
+            className="w-9 h-9 rounded-full bg-white/8 hover:bg-white/16 text-neutral-400 hover:text-white transition-all flex items-center justify-center cursor-pointer shrink-0 border border-white/14 hover:scale-105"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -154,7 +154,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* ── 2. Segmented Liquid Glass Mode Tabs ── */}
-        <div className="grid grid-cols-2 p-1 rounded-2xl bg-white/[0.05] border border-white/10 relative">
+        <div className="grid grid-cols-2 p-1.5 rounded-2xl bg-white/[0.05] border border-white/12 relative">
           <button
             type="button"
             onClick={() => setMode('login')}
@@ -166,7 +166,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           >
             {mode === 'login' && (
               <div
-                className="absolute inset-0 rounded-xl bg-[#0052FF] border border-[#38aaff]/50 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#0052FF] to-[#00A3FF] border border-[#00F0FF]/50 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.5)]"
                 style={{ animation: 'fadeIn 0.2s ease-out' }}
               />
             )}
@@ -184,7 +184,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           >
             {mode === 'signup' && (
               <div
-                className="absolute inset-0 rounded-xl bg-[#0052FF] border border-[#38aaff]/50 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#0052FF] to-[#00A3FF] border border-[#00F0FF]/50 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.5)]"
                 style={{ animation: 'fadeIn 0.2s ease-out' }}
               />
             )}
@@ -198,7 +198,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full h-13 rounded-2xl bg-white hover:bg-neutral-100 text-black font-display text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-3 transition-all shadow-[0_4px_20px_rgba(255,255,255,0.2)] active:scale-[0.98] cursor-pointer hover:shadow-[0_8px_30px_rgba(255,255,255,0.3)] hover:scale-[1.01]"
+            className="w-full h-13 rounded-2xl bg-white hover:bg-neutral-100 text-black font-display text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-3 transition-all shadow-[0_4px_20px_rgba(255,255,255,0.25)] active:scale-[0.98] cursor-pointer hover:shadow-[0_8px_30px_rgba(255,255,255,0.4)] hover:scale-[1.01]"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -225,9 +225,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             type="button"
             onClick={handleDemoLogin}
             disabled={loading}
-            className="w-full h-11 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] text-[#58a6ff] border border-blue-500/30 font-display text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+            className="w-full h-11 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] text-[#00F0FF] border border-[#00F0FF]/30 font-display text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
           >
-            <Sparkles className="w-4 h-4 text-[#58a6ff]" />
+            <Sparkles className="w-4 h-4 text-[#00FF9D]" />
             Quick Demo Driver Session
           </button>
         </div>
@@ -244,7 +244,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* ── 5. Liquid Glass Floating Input Form ── */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
           {mode === 'signup' && (
-            <div className="flex items-center h-13 rounded-2xl bg-white/[0.05] border border-white/14 focus-within:border-[#0052FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all px-4 gap-3.5 shadow-inner">
+            <div className="flex items-center h-13 rounded-2xl bg-white/[0.05] border border-white/14 focus-within:border-[#00F0FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#00F0FF]/20 transition-all px-4 gap-3.5 shadow-inner">
               <User className="w-4.5 h-4.5 text-neutral-400 shrink-0" />
               <input
                 type="text"
@@ -256,7 +256,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          <div className="flex items-center h-13 rounded-2xl bg-white/[0.05] border border-white/14 focus-within:border-[#0052FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all px-4 gap-3.5 shadow-inner">
+          <div className="flex items-center h-13 rounded-2xl bg-white/[0.05] border border-white/14 focus-within:border-[#00F0FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#00F0FF]/20 transition-all px-4 gap-3.5 shadow-inner">
             <Mail className="w-4.5 h-4.5 text-neutral-400 shrink-0" />
             <input
               type="email"
@@ -267,7 +267,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             />
           </div>
 
-          <div className="flex items-center h-13 rounded-2xl bg-white/[0.05] border border-white/14 focus-within:border-[#0052FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all px-4 gap-3.5 shadow-inner">
+          <div className="flex items-center h-13 rounded-2xl bg-white/[0.05] border border-white/14 focus-within:border-[#00F0FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#00F0FF]/20 transition-all px-4 gap-3.5 shadow-inner">
             <Lock className="w-4.5 h-4.5 text-neutral-400 shrink-0" />
             <input
               type="password"
@@ -281,7 +281,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-13 mt-1.5 rounded-2xl bg-gradient-to-r from-[#0052FF] to-[#1E6BFF] hover:from-[#0047DB] hover:to-[#0052FF] text-white font-display font-bold text-xs sm:text-sm uppercase tracking-widest transition-all shadow-[0_8px_30px_rgba(0,82,255,0.5)] hover:shadow-[0_12px_45px_rgba(0,82,255,0.7)] flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] hover:scale-[1.01]"
+            className="w-full h-13 mt-1.5 rounded-2xl bg-gradient-to-r from-[#0052FF] via-[#00A3FF] to-[#00FF9D] hover:opacity-95 text-black font-display font-bold text-xs sm:text-sm uppercase tracking-widest transition-all shadow-[0_8px_30px_rgba(0,255,157,0.4)] hover:shadow-[0_12px_45px_rgba(0,255,157,0.6)] flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] hover:scale-[1.01]"
           >
             {loading ? 'Authenticating...' : mode === 'login' ? 'Sign In to Evora' : 'Create Driver Account'}
             <ArrowRight className="w-4 h-4" />
