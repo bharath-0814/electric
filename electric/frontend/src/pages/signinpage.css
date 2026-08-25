@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /* ── Design tokens ── */
@@ -20,22 +20,61 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
   overflow-x: hidden;
 }
 
-.font-display { font-family: 'Manrope', system-ui, sans-serif; }
+.font-display { 
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif; 
+}
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; }
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Custom Liquid Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
+::-webkit-scrollbar-thumb { 
+  background: rgba(255,255,255,0.2); 
+  border-radius: 9999px; 
+}
+::-webkit-scrollbar-thumb:hover { 
+  background: rgba(255,255,255,0.35); 
+}
+
+/* ── Liquid Glass Materials ── */
+.liquid-glass {
+  background: rgba(14, 14, 20, 0.82);
+  backdrop-filter: blur(48px) saturate(240%);
+  -webkit-backdrop-filter: blur(48px) saturate(240%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 
+    0 32px 90px -10px rgba(0, 0, 0, 0.85),
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(0, 82, 255, 0.12);
+}
+
+.liquid-glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.liquid-glass-input:focus {
+  border-color: #0052FF;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(0, 82, 255, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
 
 /* ── Keyframes ── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from { opacity: 0; transform: translateY(30px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1);    }
 }
 
 @keyframes fadeIn {
@@ -78,7 +117,7 @@ body {
   animation: shimBlue 5s linear infinite;
 }
 
-.fade-up   { animation: fadeUp   0.8s cubic-bezier(0.16,1,0.3,1) both; }
-.fade-in   { animation: fadeIn   0.8s ease both; }
+.fade-up   { animation: fadeUp   0.7s cubic-bezier(0.16,1,0.3,1) both; }
+.fade-in   { animation: fadeIn   0.6s ease both; }
 .mask-in   { animation: maskReveal 1s cubic-bezier(0.77,0,0.175,1) both; }
 .line-grow { animation: lineExpand 0.9s cubic-bezier(0.77,0,0.175,1) both; }
