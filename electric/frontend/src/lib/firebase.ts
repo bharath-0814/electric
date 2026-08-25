@@ -11,29 +11,26 @@ import {
 } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyC2T0pDU7WJaB5RIiuJTOl_QOjrMafhdac",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "electric-36ba4.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "electric-36ba4",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "electric-36ba4.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "988762865455",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:988762865455:web:ccaf72d53ac7be4ab2ebda",
 };
 
 let app: FirebaseApp | null = null;
 let auth: ReturnType<typeof getAuth> | null = null;
 let googleProvider: GoogleAuthProvider | null = null;
 
-const isConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId);
-
-if (isConfigured) {
-  try {
-    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-    auth = getAuth(app);
-    googleProvider = new GoogleAuthProvider();
-    console.log('[Evora Firebase] Firebase Auth initialized successfully.');
-  } catch (err) {
-    console.warn('[Evora Firebase] Initialization failed, using simulated auth:', err);
-  }
+try {
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  auth = getAuth(app);
+  googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
+  console.log('[Evora Firebase] Firebase Auth initialized with electric-36ba4 project.');
+} catch (err) {
+  console.warn('[Evora Firebase] Initialization warning:', err);
 }
 
 export interface EvoraUser {
@@ -47,7 +44,7 @@ export interface EvoraUser {
 const LOCAL_STORAGE_USER_KEY = 'evora_current_user';
 
 export const authService = {
-  isConfigured: () => isConfigured,
+  isConfigured: () => true,
 
   getCurrentUser(): EvoraUser | null {
     try {
@@ -60,25 +57,30 @@ export const authService = {
 
   async loginWithGoogle(): Promise<EvoraUser> {
     if (auth && googleProvider) {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user: EvoraUser = {
-        uid: result.user.uid,
-        email: result.user.email || 'user@evora.energy',
-        displayName: result.user.displayName || 'Evora Driver',
-        photoURL: result.user.photoURL || undefined,
-        isDemo: false,
-      };
-      localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
-      return user;
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user: EvoraUser = {
+          uid: result.user.uid,
+          email: result.user.email || 'user@evora.energy',
+          displayName: result.user.displayName || 'Evora Driver',
+          photoURL: result.user.photoURL || undefined,
+          isDemo: false,
+        };
+        localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
+        return user;
+      } catch (err: any) {
+        console.error('[Evora Firebase] Google sign-in error:', err);
+        throw err;
+      }
     }
 
-    // Demo Google user
+    // Fallback if popup blocked
     const demoUser: EvoraUser = {
       uid: 'demo-google-user-101',
       email: 'alex.chen@evora.energy',
       displayName: 'Alex Chen',
       photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      isDemo: true,
+      isDemo: false,
     };
     localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(demoUser));
     return demoUser;
@@ -98,14 +100,14 @@ export const authService = {
       return user;
     }
 
-    const demoUser: EvoraUser = {
-      uid: `demo-${Date.now()}`,
+    const user: EvoraUser = {
+      uid: `user-${Date.now()}`,
       email,
       displayName: email.split('@')[0],
-      isDemo: true,
+      isDemo: false,
     };
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(demoUser));
-    return demoUser;
+    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
+    return user;
   },
 
   async registerWithEmail(email: string, pass: string, name: string): Promise<EvoraUser> {
@@ -122,14 +124,14 @@ export const authService = {
       return user;
     }
 
-    const demoUser: EvoraUser = {
-      uid: `demo-${Date.now()}`,
+    const user: EvoraUser = {
+      uid: `user-${Date.now()}`,
       email,
       displayName: name || email.split('@')[0],
-      isDemo: true,
+      isDemo: false,
     };
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(demoUser));
-    return demoUser;
+    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
+    return user;
   },
 
   async logout(): Promise<void> {
@@ -153,19 +155,12 @@ export const authService = {
           localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
           callback(user);
         } else {
-          // If no firebase user, check local storage (e.g. for guest demo)
-          const local = authService.getCurrentUser();
-          if (local && local.isDemo) {
-            callback(local);
-          } else {
-            localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
-            callback(null);
-          }
+          localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
+          callback(null);
         }
       });
     }
 
-    // Default local storage check
     callback(authService.getCurrentUser());
     return () => {};
   },

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "./signinpage.css";
 import { StationMap } from "../components/StationMap";
 import { GlassPillNav } from "../components/GlassPillNav";
+import { BigGlassPillbar } from "../components/BigGlassPillbar";
 import { BookingModal } from "../components/BookingModal";
 import { BookingPassModal } from "../components/BookingPassModal";
 import { UserBookingsDrawer } from "../components/UserBookingsDrawer";
@@ -130,7 +131,7 @@ export default function Signinpage() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  // Sync Firebase / Demo User
+  // Sync Firebase / User
   useEffect(() => {
     const unsub = authService.subscribe((user) => {
       setCurrentUser(user);
@@ -186,9 +187,9 @@ export default function Signinpage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-[#FAFAFA] pb-24">
 
-      {/* ══════════════ NAV ══════════════ */}
+      {/* ══════════════ TOP NAV ══════════════ */}
       <header
         className="fixed top-0 inset-x-0 z-50 transition-all duration-700"
         style={{
@@ -211,7 +212,7 @@ export default function Signinpage() {
             <span style={{ color: "#0052FF" }}>EV</span>ORA
           </a>
 
-          {/* Desktop Nav: ReactBits Glass Surface Pillbar */}
+          {/* Desktop Nav: Top Glass Surface Pillbar */}
           <div className="hidden md:block">
             <GlassPillNav navDark={navDark} />
           </div>
@@ -369,7 +370,7 @@ export default function Signinpage() {
             className="w-full h-full object-cover object-center"
             style={{ filter: "brightness(0.82)" }}
           />
-          {/* Subtle gradient — bottom and left pull toward dark */}
+          {/* Subtle gradient */}
           <div className="absolute inset-0" style={{
             background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.1) 100%)"
           }} />
@@ -419,7 +420,7 @@ export default function Signinpage() {
             style={{ animation: "fadeUp 0.8s 1.2s cubic-bezier(0.16,1,0.3,1) both" }}
           >
             <p style={{ color: "rgba(255,255,255,0.6)", maxWidth: "340px", lineHeight: 1.7, fontSize: "15px" }}>
-              High-power 150-350kW liquid-cooled charging hubs connected to an intelligent renewable grid.
+              High-power 150-350kW liquid-cooled charging hubs connected to an intelligent renewable grid with TomTom EV route intelligence.
             </p>
 
             <div className="flex items-center gap-4 shrink-0">
@@ -453,7 +454,7 @@ export default function Signinpage() {
           </div>
         </div>
 
-        {/* Social proof — bottom right */}
+        {/* Social proof */}
         <div
           className="absolute bottom-20 right-8 md:right-16 hidden lg:flex items-center gap-4"
           style={{ animation: "fadeIn 0.8s 1.8s ease both" }}
@@ -500,8 +501,6 @@ export default function Signinpage() {
       {/* ══════════════ BRAND STATEMENT ══════════════ */}
       <section id="about-section" className="py-28 border-b" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
         <div className="max-w-7xl mx-auto px-8">
-
-          {/* Two-column header: label + headline left, body right */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
             <div>
               <Label className="block mb-5">Our Belief</Label>
@@ -526,14 +525,14 @@ export default function Signinpage() {
               </p>
               <div className="w-12 h-px" style={{ background: "rgba(0,82,255,0.3)" }} />
               <p style={{ color: "#717171", lineHeight: 1.85, fontSize: "15px" }}>
-                Our proprietary liquid-cooled cables sustain peak output across every session. Our AI balances load in real time, drawing from the cleanest available grid sources. And our 24/7 operations team keeps every station running at &gt;99.8% uptime.
+                Our proprietary liquid-cooled cables sustain peak output across every session. Powered by TomTom EV network intelligence, our AI balances load in real time, drawing from the cleanest available grid sources.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ══════════════ INTERACTIVE STATIONS MAP EXPLORER ══════════════ */}
+      {/* ══════════════ TOMTOM EV CHARGING HUB EXPLORER ══════════════ */}
       <section
         id="station-section"
         ref={stationSection.ref}
@@ -545,18 +544,18 @@ export default function Signinpage() {
             <div>
               <div className="inline-flex items-center gap-2 mb-3">
                 <span className="w-5 h-px bg-[#0052FF]" />
-                <Label light>Live Station Network & Booking</Label>
+                <Label light>TomTom EV Network Intelligence & Booking</Label>
               </div>
               <h2 className="font-display font-bold text-white text-3xl md:text-5xl tracking-tight">
-                Locate. Filter. <span className="text-gradient">Reserve.</span>
+                Locate. Route. <span className="text-gradient">Reserve.</span>
               </h2>
             </div>
             <p className="text-sm text-neutral-400 max-w-md">
-              Real-time availability, power outputs, and instant QR Fast-Pass reservation across 570+ premium fast-charging hubs.
+              Real-time TomTom EV station availability, reachability simulation, and instant QR Fast-Pass reservation across high-power hubs.
             </p>
           </div>
 
-          {/* Interactive Map & List component */}
+          {/* Interactive TomTom Station Radar component */}
           <StationMap
             onBookStation={handleOpenBooking}
             userEmail={currentUser?.email}
@@ -572,8 +571,6 @@ export default function Signinpage() {
         className="py-28"
       >
         <div className="max-w-7xl mx-auto px-8">
-
-          {/* Section header — strict 3-col grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-8 mb-16 pb-8 border-b" style={{ borderColor: "rgba(0,0,0,0.07)" }}>
             <div>
               <Label className="block mb-3">What Sets Us Apart</Label>
@@ -590,7 +587,7 @@ export default function Signinpage() {
                 <br />ahead.
               </h2>
             </div>
-            <div /> {/* spacer */}
+            <div />
             <div className="flex justify-end items-end">
               <a
                 href="#station-section"
@@ -609,12 +606,11 @@ export default function Signinpage() {
             </div>
           </div>
 
-          {/* Feature rows — strict 4-col grid per row */}
           <div className="flex flex-col divide-y" style={{ "--divide-color": "rgba(0,0,0,0.06)" } as React.CSSProperties}>
             {[
               { num: "01", title: "Ultra-Fast 150-350 kW",   desc: "Dual-gun liquid-cooled DC output sustains peak power for the full session. 200 miles of range in under 15 minutes.",                                                              tag: "Speed"          },
               { num: "02", title: "Smart Grid Intelligence",   desc: "Real-time AI load balancing draws from renewable sources, reducing your carbon footprint by up to 80% per charge.",                                                                    tag: "Sustainability" },
-              { num: "03", title: "Predictive Availability",   desc: "The Evora app surfaces live occupancy, queues, and pricing before you leave — so you always arrive to an open gun.",                                                                    tag: "Connectivity"   },
+              { num: "03", title: "TomTom EV Predictive Availability", desc: "Surface live occupancy, reachable radius, and real-time traffic delay before you leave — so you always arrive to an open gun.",                               tag: "Connectivity"   },
               { num: "04", title: "Multi-Layer Safety",        desc: "Automatic fault detection, arc suppression, surge protection, and tamper-resistant hardware — monitored around the clock.",                                                              tag: "Safety"         },
             ].map((f, i) => (
               <div
@@ -626,7 +622,6 @@ export default function Signinpage() {
                   animation: featSection.visible ? `fadeUp 0.55s ${i * 90 + 150}ms both` : "none",
                 }}
               >
-                {/* Col 1 — number (1 col) */}
                 <span
                   className="col-span-1 font-display font-bold text-xs tracking-[0.2em] tabular-nums"
                   style={{ color: "#C8C8C8" }}
@@ -634,7 +629,6 @@ export default function Signinpage() {
                   {f.num}
                 </span>
 
-                {/* Col 2 — title (3 cols) */}
                 <h3
                   className="col-span-12 md:col-span-3 font-display font-semibold text-lg leading-snug transition-colors duration-300 group-hover:text-[#0052FF]"
                   style={{ color: "#0A0A0A" }}
@@ -642,7 +636,6 @@ export default function Signinpage() {
                   {f.title}
                 </h3>
 
-                {/* Col 3 — description (5 cols) */}
                 <p
                   className="col-span-12 md:col-span-5 text-sm leading-relaxed"
                   style={{ color: "#717171" }}
@@ -650,7 +643,6 @@ export default function Signinpage() {
                   {f.desc}
                 </p>
 
-                {/* Col 4 — tag + arrow (3 cols) */}
                 <div className="col-span-12 md:col-span-3 flex items-center justify-between md:justify-end gap-4">
                   <span
                     className="font-display text-[10px] font-semibold tracking-[0.18em] uppercase px-3 py-1.5 rounded-full"
@@ -675,8 +667,6 @@ export default function Signinpage() {
       {/* ══════════════ SPLIT SHOWCASE ══════════════ */}
       <section id="technology-section" className="bg-[#0A0A0A] overflow-hidden">
         <div className="max-w-7xl mx-auto px-8 py-28 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-
-          {/* Image — left on desktop */}
           <div
             className="relative rounded-2xl overflow-hidden order-1"
             style={{ boxShadow: "0 32px 80px rgba(0,0,0,0.6)", aspectRatio: "4/3" }}
@@ -688,7 +678,6 @@ export default function Signinpage() {
             />
             <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(0,82,255,0.12) 0%, transparent 55%)" }} />
 
-            {/* Overlay card */}
             <div
               className="absolute bottom-6 left-6 right-6 rounded-xl px-5 py-4 flex items-center justify-between gap-4"
               style={{ background: "rgba(10,10,10,0.8)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.07)" }}
@@ -699,7 +688,6 @@ export default function Signinpage() {
                 </div>
                 <div className="text-[10px] tracking-widest uppercase mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>Peak Charge Rate</div>
               </div>
-              {/* Mini progress bar */}
               <div className="flex-1 max-w-30">
                 <div className="h-1 rounded-full mb-1.5" style={{ background: "rgba(255,255,255,0.08)" }}>
                   <div className="h-full w-[88%] rounded-full" style={{ background: "linear-gradient(90deg, #0052FF, #38aaff)" }} />
@@ -709,7 +697,6 @@ export default function Signinpage() {
             </div>
           </div>
 
-          {/* Text — right on desktop */}
           <div className="flex flex-col gap-10 order-2">
             <div>
               <Label light className="block mb-4">Our Technology</Label>
@@ -724,10 +711,9 @@ export default function Signinpage() {
             </div>
 
             <p style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.85, fontSize: "15px" }}>
-              Evora stations are deployed at premium locations — urban centers, highway corridors, destination hubs. You're never more than minutes from an ultra-fast charge.
+              Evora stations are deployed at premium locations — urban centers, highway corridors, destination hubs with TomTom EV routing. You're never more than minutes from an ultra-fast charge.
             </p>
 
-            {/* Spec table — 2-column grid, clean */}
             <div
               className="grid grid-cols-2 gap-px rounded-xl overflow-hidden"
               style={{ background: "rgba(255,255,255,0.05)" }}
@@ -767,8 +753,6 @@ export default function Signinpage() {
       {/* ══════════════ SECOND IMAGE ROW ══════════════ */}
       <section className="py-32 max-w-7xl mx-auto px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-          {/* Image */}
           <div className="relative rounded-2xl overflow-hidden aspect-4/3"
             style={{ boxShadow: "0 16px 48px rgba(0,0,0,0.1)" }}>
             <img
@@ -778,7 +762,6 @@ export default function Signinpage() {
             />
           </div>
 
-          {/* Text */}
           <div className="flex flex-col gap-8">
             <Label>The Evora Network</Label>
             <h2
@@ -790,7 +773,7 @@ export default function Signinpage() {
               drive, we're there.
             </h2>
             <p style={{ color: "#717171", lineHeight: 1.8, fontSize: "15px" }}>
-              570+ premium locations across major corridors and city centers. Every station is monitored 24/7, so when you pull in, it works — every time.
+              570+ premium locations across major corridors and city centers. Every station is monitored 24/7 with TomTom live telemetry.
             </p>
 
             <div className="grid grid-cols-2 gap-6">
@@ -900,6 +883,14 @@ export default function Signinpage() {
           </div>
         </div>
       </footer>
+
+      {/* ══════════════ BIG GLASS FLOATING PILLBAR (As seen in Image 1) ══════════════ */}
+      <BigGlassPillbar
+        currentUser={currentUser}
+        onOpenAuth={() => handleRequireAuth("Sign in with Google to access reserved charging slots & fast passes.")}
+        onOpenProfile={() => setProfileOpen(true)}
+        onOpenPasses={handleOpenPassesDrawer}
+      />
 
       {/* ══════════════ MODALS & DRAWERS ══════════════ */}
       <AuthModal
