@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./signinpage.css";
-import { GlassPillNav } from "../components/GlassPillNav";
+import { FloatingGlassNav } from "../components/FloatingGlassNav";
 import { BookingModal } from "../components/BookingModal";
 import { BookingPassModal } from "../components/BookingPassModal";
 import { UserBookingsDrawer } from "../components/UserBookingsDrawer";
@@ -9,7 +9,6 @@ import { UserProfileModal } from "../components/UserProfileModal";
 import { ContactModal } from "../components/ContactModal";
 import { authService, type EvoraUser } from "../lib/firebase";
 import type { Station, Reservation } from "../types";
-import { QrCode } from "lucide-react";
 
 function useInView<T extends HTMLElement>(threshold = 0.2) {
   const ref = useRef<T>(null);
@@ -57,8 +56,8 @@ function Rule({ light = false, className = "" }: { light?: boolean; className?: 
 function Label({ children, light = false, className = "" }: { children: string; light?: boolean; className?: string }) {
   return (
     <span
-      className={`font-display text-[10px] font-semibold tracking-[0.2em] uppercase ${className}`}
-      style={{ color: light ? "rgba(255,255,255,0.5)" : "#717171" }}
+      className={`font-display text-[10px] font-bold tracking-[0.2em] uppercase ${className}`}
+      style={{ color: light ? "rgba(255,255,255,0.6)" : "#717171" }}
     >
       {children}
     </span>
@@ -102,9 +101,6 @@ const NIGHT_IMG   = "https://images.unsplash.com/photo-1748843765943-27ef9aad505
 const NEON_IMG    = "https://images.unsplash.com/photo-1776610148977-07b1e2dca438?w=1200&h=900&fit=crop&auto=format&q=90";
 
 export default function Signinpage() {
-  const [scrollY, setScrollY] = useState(0);
-  const [menuOpen, setMenuOpen] = useState(false);
-
   // User auth state
   const [currentUser, setCurrentUser] = useState<EvoraUser | null>(null);
 
@@ -122,12 +118,6 @@ export default function Signinpage() {
   const statsSection = useInView<HTMLDivElement>(0.3);
   const featSection  = useInView<HTMLDivElement>(0.15);
 
-  useEffect(() => {
-    const fn = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
-
   // Sync Firebase / User & Check Redirect Login
   useEffect(() => {
     authService.checkRedirectResult().then((user) => {
@@ -138,8 +128,6 @@ export default function Signinpage() {
     });
     return () => unsub();
   }, []);
-
-  const navDark = scrollY > 60;
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -185,177 +173,14 @@ export default function Signinpage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
 
-      {/* ══════════════ TOP NAV (Apple-grade Centered Glass Pillbar) ══════════════ */}
-      <header
-        className="fixed top-0 inset-x-0 z-50 transition-all duration-700"
-        style={{
-          background: navDark ? "rgba(250,250,250,0.92)" : "transparent",
-          backdropFilter: navDark ? "blur(24px) saturate(200%)" : "none",
-          borderBottom: navDark ? "1px solid rgba(0,0,0,0.06)" : "none",
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between relative">
-          {/* Wordmark */}
-          <a
-            href="#home"
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className="font-display text-xl font-bold tracking-[0.14em] uppercase select-none cursor-pointer z-10"
-            style={{ color: navDark ? "#0A0A0A" : "#fff" }}
-          >
-            <span style={{ color: "#0052FF" }}>EV</span>ORA
-          </a>
-
-          {/* Desktop Nav: Apple Glass Surface Pillbar - Centered */}
-          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center justify-center pointer-events-auto z-10">
-            <GlassPillNav navDark={navDark} />
-          </div>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-4 z-10">
-            {/* Quick Passes Drawer Trigger */}
-            <button
-              onClick={handleOpenPassesDrawer}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-full font-display text-[11px] font-bold tracking-[0.14em] uppercase transition-all duration-300 border cursor-pointer hover:scale-105"
-              style={{
-                background: navDark ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.08)",
-                color: navDark ? "#0A0A0A" : "#fff",
-                borderColor: navDark ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.22)",
-                backdropFilter: "blur(12px)",
-              }}
-              title="My Fast Passes"
-            >
-              <QrCode className="w-4 h-4 text-[#0052FF]" />
-              <span className="hidden lg:inline">Passes</span>
-            </button>
-
-            {/* User Log In / Profile button */}
-            {currentUser ? (
-              <button
-                onClick={() => setProfileOpen(true)}
-                className="flex items-center gap-2.5 px-5 py-2.5 rounded-full font-display text-[11px] font-bold tracking-[0.12em] uppercase transition-all duration-300 border cursor-pointer hover:scale-105"
-                style={{
-                  background: navDark ? "#0052FF" : "rgba(0,82,255,0.25)",
-                  color: "#fff",
-                  borderColor: "#0052FF",
-                  boxShadow: "0 0 20px rgba(0,82,255,0.4)",
-                  backdropFilter: "blur(12px)",
-                }}
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-                <span>{currentUser.displayName}</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => handleRequireAuth("Sign in with Google to access reserved charging slots & fast passes.")}
-                className="hidden md:block font-display text-[11px] font-bold tracking-[0.16em] uppercase transition-colors duration-300 cursor-pointer hover:text-white"
-                style={{ color: navDark ? "#717171" : "rgba(255,255,255,0.75)" }}
-              >
-                Log In
-              </button>
-            )}
-
-            <button
-              onClick={() => setContactOpen(true)}
-              className="font-display text-[11px] font-bold tracking-[0.16em] uppercase px-6 py-3 rounded-full transition-all duration-300 active:scale-95 cursor-pointer hover:scale-105"
-              style={{
-                background: navDark ? "#0052FF" : "rgba(255,255,255,0.14)",
-                color: "#fff",
-                border: navDark ? "none" : "1px solid rgba(255,255,255,0.25)",
-                backdropFilter: "blur(12px)",
-                boxShadow: navDark ? "0 4px 20px rgba(0,82,255,0.35)" : "none",
-              }}
-            >
-              Contact Us
-            </button>
-
-            {/* Hamburger */}
-            <button
-              className="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer"
-              onClick={() => setMenuOpen((open: boolean) => !open)}
-              aria-label="Menu"
-              aria-expanded={menuOpen}
-              aria-controls="mobile-navigation"
-            >
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={i}
-                  className="block h-px w-6 transition-all duration-300"
-                  style={{ background: navDark ? "#0A0A0A" : "#fff" }}
-                />
-              ))}
-            </button>
-          </div>
-        </div>
-
-        {menuOpen && (
-          <nav id="mobile-navigation" className="md:hidden border-t px-8 py-5" style={{ background: "rgba(250,250,250,0.98)", borderColor: "rgba(0,0,0,0.06)" }}>
-            <div className="flex flex-col gap-5">
-              <a
-                href="#home"
-                className="font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A]"
-                onClick={() => {
-                  setMenuOpen(false);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              >
-                Home
-              </a>
-              <a
-                href="#about"
-                className="font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A]"
-                onClick={() => {
-                  setMenuOpen(false);
-                  scrollToSection("about-section");
-                }}
-              >
-                About
-              </a>
-              <a
-                href="#features"
-                className="font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A]"
-                onClick={() => {
-                  setMenuOpen(false);
-                  scrollToSection("features-section");
-                }}
-              >
-                Features
-              </a>
-              <a
-                href="#technology"
-                className="font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A]"
-                onClick={() => {
-                  setMenuOpen(false);
-                  scrollToSection("technology-section");
-                }}
-              >
-                Our Network
-              </a>
-              <button
-                className="text-left font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A] cursor-pointer"
-                onClick={() => {
-                  setMenuOpen(false);
-                  if (currentUser) setProfileOpen(true);
-                  else handleRequireAuth("Sign in with Google to access reserved charging slots & fast passes.");
-                }}
-              >
-                {currentUser ? `Account (${currentUser.displayName})` : "Log In"}
-              </button>
-              <button
-                className="text-left font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0052FF] cursor-pointer"
-                onClick={() => {
-                  setMenuOpen(false);
-                  handleOpenPassesDrawer();
-                }}
-              >
-                My Fast Passes
-              </button>
-            </div>
-          </nav>
-        )}
-      </header>
+      {/* ══════════════ MASTER FLOATING LIQUID GLASS PILLBAR (TOP CENTER) ══════════════ */}
+      <FloatingGlassNav
+        currentUser={currentUser}
+        onOpenPasses={handleOpenPassesDrawer}
+        onOpenAuth={() => handleRequireAuth("Sign in with Google to access reserved charging slots & fast passes.")}
+        onOpenProfile={() => setProfileOpen(true)}
+        onOpenContact={() => setContactOpen(true)}
+      />
 
       {/* ══════════════ HERO ══════════════ */}
       <section id="home" className="relative h-screen min-h-175 flex items-end overflow-hidden">
@@ -417,7 +242,7 @@ export default function Signinpage() {
             <div className="flex items-center gap-4 shrink-0">
               <button
                 onClick={() => scrollToSection("features-section")}
-                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
+                className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
                 style={{
                   background: "#0052FF",
                   color: "#fff",
@@ -430,7 +255,7 @@ export default function Signinpage() {
               </button>
               <button
                 onClick={() => scrollToSection("technology-section")}
-                className="font-display font-medium text-[12px] tracking-[0.15em] uppercase flex items-center gap-2 transition-all duration-300 group cursor-pointer"
+                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase flex items-center gap-2 transition-all duration-300 group cursor-pointer"
                 style={{ color: "rgba(255,255,255,0.7)" }}
               >
                 <span>Our Network</span>
@@ -457,7 +282,7 @@ export default function Signinpage() {
           </div>
           <div>
             <div className="font-display text-xl font-bold" style={{ color: "#fff" }}>102K+</div>
-            <div className="text-[10px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>Verified Reviews</div>
+            <div className="text-[10px] tracking-widest uppercase font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>Verified Reviews</div>
           </div>
         </div>
 
@@ -466,7 +291,7 @@ export default function Signinpage() {
           onClick={() => scrollToSection("stats-section")}
           style={{ animation: "fadeIn 1s 2.2s ease both" }}
         >
-          <div className="w-px h-10 bg-linear-to-b from-transparent to-white/40"
+          <div className="w-px h-10 bg-gradient-to-b from-transparent to-white/40"
             style={{ animation: "floatY 2s ease-in-out infinite" }} />
         </div>
       </section>
@@ -548,7 +373,7 @@ export default function Signinpage() {
             <div className="flex justify-end items-end">
               <button
                 onClick={() => scrollToSection("technology-section")}
-                className="font-display font-semibold text-[11px] tracking-[0.15em] uppercase flex items-center gap-2 group transition-colors duration-300 cursor-pointer"
+                className="font-display font-bold text-[11px] tracking-[0.15em] uppercase flex items-center gap-2 group transition-colors duration-300 cursor-pointer"
                 style={{ color: "#0052FF" }}
               >
                 <span>Our Network</span>
@@ -576,14 +401,14 @@ export default function Signinpage() {
                 }}
               >
                 <span
-                  className="col-span-1 font-display font-bold text-xs tracking-[0.2em] tabular-nums"
+                  className="col-span-1 font-mono font-bold text-xs tracking-[0.2em] tabular-nums"
                   style={{ color: "#C8C8C8" }}
                 >
                   {f.num}
                 </span>
 
                 <h3
-                  className="col-span-12 md:col-span-3 font-display font-semibold text-lg leading-snug transition-colors duration-300 group-hover:text-[#0052FF]"
+                  className="col-span-12 md:col-span-3 font-display font-bold text-lg leading-snug transition-colors duration-300 group-hover:text-[#0052FF]"
                   style={{ color: "#0A0A0A" }}
                 >
                   {f.title}
@@ -598,7 +423,7 @@ export default function Signinpage() {
 
                 <div className="col-span-12 md:col-span-3 flex items-center justify-between md:justify-end gap-4">
                   <span
-                    className="font-display text-[10px] font-semibold tracking-[0.18em] uppercase px-3 py-1.5 rounded-full"
+                    className="font-display text-[10px] font-bold tracking-[0.18em] uppercase px-3 py-1.5 rounded-full"
                     style={{ background: "rgba(0,82,255,0.07)", color: "#0052FF" }}
                   >
                     {f.tag}
@@ -639,13 +464,13 @@ export default function Signinpage() {
                 <div className="font-display text-2xl font-bold" style={{ color: "#fff" }}>
                   350 <span style={{ color: "#0052FF" }}>kW</span>
                 </div>
-                <div className="text-[10px] tracking-widest uppercase mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>Peak Charge Rate</div>
+                <div className="text-[10px] tracking-widest uppercase mt-0.5 font-semibold" style={{ color: "rgba(255,255,255,0.35)" }}>Peak Charge Rate</div>
               </div>
               <div className="flex-1 max-w-30">
                 <div className="h-1 rounded-full mb-1.5" style={{ background: "rgba(255,255,255,0.08)" }}>
                   <div className="h-full w-[88%] rounded-full" style={{ background: "linear-gradient(90deg, #0052FF, #38aaff)" }} />
                 </div>
-                <div className="text-[9px] tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>Ultra Session active</div>
+                <div className="text-[9px] tracking-wider font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>Ultra Session active</div>
               </div>
             </div>
           </div>
@@ -691,7 +516,7 @@ export default function Signinpage() {
             <div>
               <button
                 onClick={() => setContactOpen(true)}
-                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
+                className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
                 style={{ background: "#0052FF", color: "#fff", boxShadow: "0 8px 32px rgba(0,82,255,0.35)" }}
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 44px rgba(0,82,255,0.55)")}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,82,255,0.35)")}
@@ -743,14 +568,14 @@ export default function Signinpage() {
                   >
                     {icon}
                   </span>
-                  <span className="font-display font-medium text-sm" style={{ color: "#3A3A3A" }}>{label}</span>
+                  <span className="font-display font-bold text-sm" style={{ color: "#3A3A3A" }}>{label}</span>
                 </div>
               ))}
             </div>
 
             <button
               onClick={() => scrollToSection("features-section")}
-              className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full w-fit border-2 transition-all duration-300 active:scale-95 group cursor-pointer"
+              className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full w-fit border-2 transition-all duration-300 active:scale-95 group cursor-pointer"
               style={{ borderColor: "#0A0A0A", color: "#0A0A0A" }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = "#0A0A0A";
@@ -808,7 +633,7 @@ export default function Signinpage() {
                       setContactOpen(true);
                     }
                   }}
-                  className="text-sm transition-colors duration-200 cursor-pointer"
+                  className="text-sm font-semibold transition-colors duration-200 cursor-pointer"
                   style={{ color: "#717171" }}
                   onMouseEnter={e => (e.currentTarget.style.color = "#0A0A0A")}
                   onMouseLeave={e => (e.currentTarget.style.color = "#717171")}
@@ -825,7 +650,7 @@ export default function Signinpage() {
           <p className="text-[12px]" style={{ color: "#C0C0C0" }}>© 2026 Evora Energy, Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">
             {["Privacy Policy", "Terms of Service", "Cookie Settings"].map((l) => (
-              <a key={l} href="#" className="text-[11px] transition-colors duration-200"
+              <a key={l} href="#" className="text-[11px] font-semibold transition-colors duration-200"
                 style={{ color: "#C0C0C0" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "#0A0A0A")}
                 onMouseLeave={e => (e.currentTarget.style.color = "#C0C0C0")}
