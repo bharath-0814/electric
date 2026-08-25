@@ -64,21 +64,21 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
   };
 
   return (
-    <header className="fixed top-5 md:top-6 left-4 md:left-8 z-50 flex items-center pointer-events-none">
-      {/* Top Left Floating Liquid Glass Capsule */}
+    <header className="fixed top-5 md:top-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center pointer-events-none">
+      {/* Master Top-Middle Floating Liquid Glass Capsule */}
       <div
-        className="pointer-events-auto relative flex items-center gap-2 md:gap-3.5 px-4 md:px-5 py-2 md:py-2.5 rounded-full transition-all duration-500 shadow-[0_24px_70px_rgba(0,0,0,0.85)]"
+        className="pointer-events-auto relative flex items-center gap-2.5 md:gap-4 px-4 md:px-6 py-2.5 md:py-3 rounded-full transition-all duration-500 shadow-[0_24px_70px_rgba(0,0,0,0.85)]"
         style={{
-          background: 'rgba(14, 14, 20, 0.82)',
+          background: 'rgba(14, 14, 20, 0.84)',
           backdropFilter: 'blur(48px) saturate(240%)',
           WebkitBackdropFilter: 'blur(48px) saturate(240%)',
           border: '1px solid rgba(255, 255, 255, 0.18)',
           boxShadow:
-            '0 24px 70px -10px rgba(0, 0, 0, 0.85), inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.4), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 82, 255, 0.12)',
+            '0 24px 70px -10px rgba(0, 0, 0, 0.85), inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.4), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 82, 255, 0.15)',
         }}
       >
         {/* Top Edge Specular Refraction Highlight */}
-        <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/55 to-transparent rounded-full pointer-events-none" />
+        <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/55 to-transparent rounded-full pointer-events-none" />
 
         {/* 1. Left Brand Wordmark */}
         <button
@@ -92,11 +92,11 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
           </span>
         </button>
 
-        {/* Vertical Divider */}
+        {/* Vertical Hairline Divider */}
         <div className="hidden md:block w-[1px] h-5 bg-white/16" />
 
         {/* 2. Navigation Items */}
-        <nav className="hidden md:flex items-center gap-1.5">
+        <nav className="hidden md:flex items-center gap-2">
           {NAV_ITEMS.map((item) => {
             const isActive = activeSection === item.targetId;
             const isHovered = hoveredSection === item.targetId;
@@ -108,14 +108,14 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
                 onClick={() => handleScrollTo(item.targetId)}
                 onMouseEnter={() => setHoveredSection(item.targetId)}
                 onMouseLeave={() => setHoveredSection(null)}
-                className={`relative px-4 py-2 rounded-full font-display text-xs font-bold tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer select-none ${
+                className={`relative px-5 py-2.5 rounded-full font-display text-xs font-bold tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer select-none ${
                   isActive ? 'text-white' : 'text-neutral-300 hover:text-white'
                 }`}
               >
                 {/* Active Glowing Glass Pill */}
                 {isActive && (
                   <div
-                    className="absolute inset-0 rounded-full bg-[#0052FF] border border-[#38aaff]/60 shadow-[0_0_20px_rgba(0,82,255,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.45)] transition-all duration-300"
+                    className="absolute inset-0 rounded-full bg-[#0052FF] border border-[#38aaff]/60 shadow-[0_0_24px_rgba(0,82,255,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.45)] transition-all duration-300"
                     style={{ animation: 'fadeIn 0.25s ease-out' }}
                   />
                 )}
@@ -134,7 +134,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
           })}
         </nav>
 
-        {/* Vertical Divider */}
+        {/* Vertical Hairline Divider */}
         <div className="hidden md:block w-[1px] h-5 bg-white/16" />
 
         {/* 3. User Account / Log In */}
@@ -143,16 +143,16 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
             <button
               type="button"
               onClick={onOpenProfile}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full font-display text-[11px] font-bold tracking-[0.12em] uppercase text-white bg-[#0052FF]/20 border border-[#0052FF]/50 hover:bg-[#0052FF]/30 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,82,255,0.3)] hover:scale-105"
+              className="flex items-center gap-2 px-4 py-2 rounded-full font-display text-[11px] font-bold tracking-[0.12em] uppercase text-white bg-[#0052FF]/20 border border-[#0052FF]/50 hover:bg-[#0052FF]/30 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,82,255,0.3)] hover:scale-105"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-              <span className="max-w-[85px] truncate">{currentUser.displayName.split(' ')[0]}</span>
+              <span className="max-w-[90px] truncate">{currentUser.displayName.split(' ')[0]}</span>
             </button>
           ) : (
             <button
               type="button"
               onClick={onOpenAuth}
-              className="font-display text-[11px] font-bold tracking-[0.14em] uppercase text-neutral-300 hover:text-white px-3 py-1.5 transition-colors cursor-pointer"
+              className="font-display text-[11px] font-bold tracking-[0.14em] uppercase text-neutral-300 hover:text-white px-3.5 py-2 transition-colors cursor-pointer"
             >
               Log In
             </button>
@@ -162,7 +162,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-1.5 ml-1 rounded-full bg-white/[0.06] text-white cursor-pointer"
+            className="md:hidden p-2 ml-1 rounded-full bg-white/[0.06] text-white cursor-pointer"
             aria-label="Toggle Navigation"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -173,7 +173,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
       {/* Mobile Glass Dropdown Drawer */}
       {mobileMenuOpen && (
         <div
-          className="pointer-events-auto absolute top-16 left-0 w-64 p-5 rounded-3xl text-white shadow-2xl flex flex-col gap-3 md:hidden"
+          className="pointer-events-auto absolute top-18 left-1/2 -translate-x-1/2 w-72 p-5 rounded-3xl text-white shadow-2xl flex flex-col gap-3 md:hidden"
           style={{
             background: 'rgba(14, 14, 20, 0.94)',
             backdropFilter: 'blur(48px) saturate(240%)',
@@ -187,7 +187,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
               key={item.targetId}
               type="button"
               onClick={() => handleScrollTo(item.targetId)}
-              className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-neutral-200 hover:text-white py-1.5 border-b border-white/8 cursor-pointer"
+              className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-neutral-200 hover:text-white py-2 border-b border-white/8 cursor-pointer"
             >
               {item.label}
             </button>
@@ -199,7 +199,7 @@ export const FloatingGlassNav: React.FC<FloatingGlassNavProps> = ({
               if (currentUser) onOpenProfile();
               else onOpenAuth();
             }}
-            className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-[#38aaff] py-1.5 cursor-pointer"
+            className="text-left font-display text-xs font-semibold tracking-[0.14em] uppercase text-[#38aaff] py-2 cursor-pointer"
           >
             {currentUser ? `My Account (${currentUser.displayName})` : 'Log In / Sign Up'}
           </button>
