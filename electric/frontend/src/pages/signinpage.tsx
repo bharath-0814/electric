@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import "./signinpage.css";
 import { StationMap } from "../components/StationMap";
 import { GlassPillNav } from "../components/GlassPillNav";
-import { BigGlassPillbar } from "../components/BigGlassPillbar";
 import { BookingModal } from "../components/BookingModal";
 import { BookingPassModal } from "../components/BookingPassModal";
 import { UserBookingsDrawer } from "../components/UserBookingsDrawer";
@@ -187,9 +186,9 @@ export default function Signinpage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-24">
+    <div className="min-h-screen bg-[#FAFAFA]">
 
-      {/* ══════════════ TOP NAV ══════════════ */}
+      {/* ══════════════ TOP NAV (Apple-grade Glass Surface Pillbar) ══════════════ */}
       <header
         className="fixed top-0 inset-x-0 z-50 transition-all duration-700"
         style={{
@@ -198,7 +197,7 @@ export default function Signinpage() {
           borderBottom: navDark ? "1px solid rgba(0,0,0,0.06)" : "none",
         }}
       >
-        <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
           {/* Wordmark */}
           <a
             href="#home"
@@ -206,13 +205,13 @@ export default function Signinpage() {
               e.preventDefault();
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="font-display text-xl font-bold tracking-[0.12em] uppercase select-none cursor-pointer"
+            className="font-display text-xl font-bold tracking-[0.14em] uppercase select-none cursor-pointer"
             style={{ color: navDark ? "#0A0A0A" : "#fff" }}
           >
             <span style={{ color: "#0052FF" }}>EV</span>ORA
           </a>
 
-          {/* Desktop Nav: Top Glass Surface Pillbar */}
+          {/* Desktop Nav: Apple Glass Surface Pillbar */}
           <div className="hidden md:block">
             <GlassPillNav navDark={navDark} />
           </div>
@@ -222,15 +221,16 @@ export default function Signinpage() {
             {/* Quick Passes Drawer Trigger */}
             <button
               onClick={handleOpenPassesDrawer}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full font-display text-[11px] font-semibold tracking-[0.14em] uppercase transition-all duration-300 border cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-full font-display text-[11px] font-bold tracking-[0.14em] uppercase transition-all duration-300 border cursor-pointer hover:scale-105"
               style={{
                 background: navDark ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.08)",
                 color: navDark ? "#0A0A0A" : "#fff",
-                borderColor: navDark ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)",
+                borderColor: navDark ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.22)",
+                backdropFilter: "blur(12px)",
               }}
               title="My Fast Passes"
             >
-              <QrCode className="w-3.5 h-3.5 text-[#0052FF]" />
+              <QrCode className="w-4 h-4 text-[#0052FF]" />
               <span className="hidden lg:inline">Passes</span>
             </button>
 
@@ -238,22 +238,23 @@ export default function Signinpage() {
             {currentUser ? (
               <button
                 onClick={() => setProfileOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-full font-display text-[11px] font-semibold tracking-[0.12em] uppercase transition-all duration-300 border cursor-pointer"
+                className="flex items-center gap-2.5 px-5 py-2.5 rounded-full font-display text-[11px] font-bold tracking-[0.12em] uppercase transition-all duration-300 border cursor-pointer hover:scale-105"
                 style={{
-                  background: navDark ? "#0052FF" : "rgba(0,82,255,0.2)",
+                  background: navDark ? "#0052FF" : "rgba(0,82,255,0.25)",
                   color: "#fff",
                   borderColor: "#0052FF",
-                  boxShadow: "0 0 15px rgba(0,82,255,0.3)",
+                  boxShadow: "0 0 20px rgba(0,82,255,0.4)",
+                  backdropFilter: "blur(12px)",
                 }}
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
                 <span>{currentUser.displayName}</span>
               </button>
             ) : (
               <button
                 onClick={() => handleRequireAuth("Sign in with Google to access reserved charging slots & fast passes.")}
-                className="hidden md:block font-display text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-300 cursor-pointer"
-                style={{ color: navDark ? "#717171" : "rgba(255,255,255,0.6)" }}
+                className="hidden md:block font-display text-[11px] font-bold tracking-[0.16em] uppercase transition-colors duration-300 cursor-pointer hover:text-white"
+                style={{ color: navDark ? "#717171" : "rgba(255,255,255,0.75)" }}
               >
                 Log In
               </button>
@@ -261,13 +262,13 @@ export default function Signinpage() {
 
             <button
               onClick={() => setContactOpen(true)}
-              className="font-display text-[11px] font-semibold tracking-[0.16em] uppercase px-6 py-3 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
+              className="font-display text-[11px] font-bold tracking-[0.16em] uppercase px-6 py-3 rounded-full transition-all duration-300 active:scale-95 cursor-pointer hover:scale-105"
               style={{
-                background: navDark ? "#0052FF" : "rgba(255,255,255,0.12)",
-                color: navDark ? "#fff" : "#fff",
+                background: navDark ? "#0052FF" : "rgba(255,255,255,0.14)",
+                color: "#fff",
                 border: navDark ? "none" : "1px solid rgba(255,255,255,0.25)",
-                backdropFilter: navDark ? "none" : "blur(8px)",
-                boxShadow: navDark ? "0 4px 20px rgba(0,82,255,0.3)" : "none",
+                backdropFilter: "blur(12px)",
+                boxShadow: navDark ? "0 4px 20px rgba(0,82,255,0.35)" : "none",
               }}
             >
               Contact Us
@@ -361,8 +362,6 @@ export default function Signinpage() {
 
       {/* ══════════════ HERO ══════════════ */}
       <section id="home" className="relative h-screen min-h-175 flex items-end overflow-hidden">
-
-        {/* Background — full bleed cinematic car */}
         <div className="absolute inset-0">
           <img
             src={HERO_IMG}
@@ -370,7 +369,6 @@ export default function Signinpage() {
             className="w-full h-full object-cover object-center"
             style={{ filter: "brightness(0.82)" }}
           />
-          {/* Subtle gradient */}
           <div className="absolute inset-0" style={{
             background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.1) 100%)"
           }} />
@@ -379,9 +377,7 @@ export default function Signinpage() {
           }} />
         </div>
 
-        {/* Content */}
         <div className="relative w-full max-w-7xl mx-auto px-8 pb-20">
-          {/* Eyebrow */}
           <div className="fade-in mb-6" style={{ animationDelay: "200ms" }}>
             <div className="inline-flex items-center gap-3">
               <span className="w-6 h-px" style={{ background: "#0052FF" }} />
@@ -389,7 +385,6 @@ export default function Signinpage() {
             </div>
           </div>
 
-          {/* Giant headline */}
           <h1
             className="font-display font-bold leading-[0.95] mb-8"
             style={{ fontSize: "clamp(52px, 9vw, 120px)", color: "#fff" }}
@@ -414,7 +409,6 @@ export default function Signinpage() {
             </span>
           </h1>
 
-          {/* Sub + CTA row */}
           <div
             className="flex flex-col sm:flex-row items-start sm:items-center gap-8"
             style={{ animation: "fadeUp 0.8s 1.2s cubic-bezier(0.16,1,0.3,1) both" }}
@@ -454,7 +448,6 @@ export default function Signinpage() {
           </div>
         </div>
 
-        {/* Social proof */}
         <div
           className="absolute bottom-20 right-8 md:right-16 hidden lg:flex items-center gap-4"
           style={{ animation: "fadeIn 0.8s 1.8s ease both" }}
@@ -471,7 +464,6 @@ export default function Signinpage() {
           </div>
         </div>
 
-        {/* Scroll hint */}
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
           onClick={() => scrollToSection("stats-section")}
@@ -555,7 +547,6 @@ export default function Signinpage() {
             </p>
           </div>
 
-          {/* Interactive TomTom Station Radar component */}
           <StationMap
             onBookStation={handleOpenBooking}
             userEmail={currentUser?.email}
@@ -883,14 +874,6 @@ export default function Signinpage() {
           </div>
         </div>
       </footer>
-
-      {/* ══════════════ BIG GLASS FLOATING PILLBAR (As seen in Image 1) ══════════════ */}
-      <BigGlassPillbar
-        currentUser={currentUser}
-        onOpenAuth={() => handleRequireAuth("Sign in with Google to access reserved charging slots & fast passes.")}
-        onOpenProfile={() => setProfileOpen(true)}
-        onOpenPasses={handleOpenPassesDrawer}
-      />
 
       {/* ══════════════ MODALS & DRAWERS ══════════════ */}
       <AuthModal

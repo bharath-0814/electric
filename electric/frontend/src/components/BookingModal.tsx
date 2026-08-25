@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import type { Station, ConnectorType, Reservation } from '../types';
+import type { Station, Reservation, ConnectorType } from '../types';
 import { tursoService } from '../lib/tursoClient';
 import { useToast } from '../context/ToastContext';
-import { X, BatteryCharging, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { X, Zap, ArrowRight } from 'lucide-react';
 
 interface BookingModalProps {
   station: Station | null;
@@ -27,209 +27,208 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   );
   const [selectedPort, setSelectedPort] = useState<number>(1);
   const [durationMinutes, setDurationMinutes] = useState<number>(30);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { showToast } = useToast();
 
-  // Energy & Price estimation
-  const effectivePowerKw = Math.min(station.maxPowerKw, 150);
-  const estimatedKwh = Math.round(((effectivePowerKw * (durationMinutes / 60)) * 0.85) * 10) / 10;
-  const energyCost = Math.round(estimatedKwh * station.pricingPerKwh * 100) / 100;
-  const reservationFee = 1.5;
-  const totalCost = Math.round((energyCost + reservationFee) * 100) / 100;
+  // Price Calculation: Duration * Avg Speed (kW) * pricingPerKwh
+  const estimatedKwh = Math.round((station.maxPowerKw * (durationMinutes / 60) * 0.75) * 10) / 10;
+  const estimatedCost = Math.round(estimatedKwh * station.pricingPerKwh * 100) / 100;
 
-  const handleConfirmBooking = async () => {
-    setIsSubmitting(true);
+  const handleConfirmReservation = async () => {
+    setLoading(true);
     try {
-      const reservationId = `EVR-${Date.now().toString(36).toUpperCase()}-${Math.floor(
-        Math.random() * 900 + 100
-      )}`;
+      const reservationId = `RES-${Date.now().toString(36).toUpperCase()}-${Math.random()
+        .toString(36)
+        .substring(2, 6)
+        .toUpperCase()}`;
 
-      const startTime = new Date().toISOString();
-
-      const reservation: Reservation = {
+      const newReservation: Reservation = {
         id: reservationId,
         stationId: station.id,
         stationName: station.name,
-        stationAddress: `${station.address}, ${station.city}`,
-        userEmail: userEmail || 'guest.driver@evora.energy',
-        userName: userName || 'Evora Driver',
+        stationAddress: station.address,
+        userEmail,
+        userName,
         portNumber: selectedPort,
         connectorType: selectedConnector,
         powerKw: station.maxPowerKw,
-        startTime,
+        startTime: new Date().toISOString(),
         durationMinutes,
-        totalCost,
+        totalCost: estimatedCost,
         status: 'confirmed',
-        qrCode: `EVORA-PASS:${reservationId}:${station.id}:PORT${selectedPort}`,
+        qrCode: `EVORA://PASS/${reservationId}/${station.id}/${selectedPort}`,
         createdAt: new Date().toISOString(),
       };
 
-      await tursoService.createReservation(reservation);
+      // Save into Turso SQL
+      await tursoService.createReservation(newReservation);
 
-      // Celebration effect
-      try {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#0052FF', '#ffffff', '#38aaff'],
-        });
-      } catch {}
+      // Confetti effect
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#0052FF', '#ffffff', '#38aaff', '#10B981'],
+      });
 
-      showToast('Charging Slot Confirmed!', `Reserved Gun #${selectedPort} at ${station.name}`, 'success');
-      onSuccess(reservation);
-    } catch (err) {
-      showToast('Booking failed', 'Please check connection and try again.', 'error');
+      showToast(
+        'Slot Locked & Confirmed',
+        `Port #${selectedPort} reserved at ${station.name}.`,
+        'success'
+      );
+
+      onSuccess(newReservation);
+    } catch (err: any) {
+      showToast('Booking Failed', err.message || 'Could not lock charging slot.', 'error');
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6 bg-black/85 backdrop-blur-xl">
       <div
-        className="relative w-full max-w-lg rounded-3xl bg-[#0C0C0C] border border-white/12 p-6 md:p-8 text-white shadow-2xl overflow-hidden flex flex-col gap-6"
-        style={{ animation: 'fadeUp 0.3s ease-out' }}
+        className="relative w-full max-w-lg rounded-[36px] p-8 md:p-12 text-white shadow-[0_32px_90px_rgba(0,0,0,0.85)] flex flex-col gap-6 overflow-hidden transition-all duration-300"
+        style={{
+          background: 'rgba(13, 13, 18, 0.88)',
+          backdropFilter: 'blur(40px) saturate(240%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(240%)',
+          border: '1px solid rgba(255, 255, 255, 0.16)',
+          boxShadow:
+            '0 32px 80px -10px rgba(0, 0, 0, 0.9), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 82, 255, 0.15)',
+          animation: 'fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both',
+        }}
       >
-        {/* Top Header */}
-        <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/10">
+        <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
+
+        {/* Modal Header */}
+        <div className="flex items-start justify-between pb-5 border-b border-white/10">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#0052FF]/20 text-[#0052FF] text-[10px] font-display font-bold uppercase tracking-wider">
-                Slot Reservation
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-[11px] font-display font-bold uppercase tracking-wider text-[#38aaff] bg-[#0052FF]/20 border border-[#0052FF]/35 px-3 py-1 rounded-full">
+                ⚡ {station.isEvoraHub ? 'Evora Supercharging Hub' : station.operator}
               </span>
-              <span className="text-xs text-neutral-400 font-mono">
-                {station.currency}{station.pricingPerKwh}/kWh
+              <span className="text-xs font-mono font-bold text-white bg-white/10 px-2.5 py-1 rounded-full">
+                {station.maxPowerKw} kW
               </span>
             </div>
-            <h3 className="font-display font-bold text-xl text-white leading-tight">
-              {station.name}
-            </h3>
-            <p className="text-xs text-neutral-400 mt-0.5">{station.address}, {station.city}</p>
+            <h3 className="font-display font-bold text-2xl text-white">{station.name}</h3>
+            <p className="text-xs text-neutral-400 mt-1">{station.address}</p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            className="p-2.5 rounded-full bg-white/6 hover:bg-white/12 text-neutral-400 hover:text-white transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* 1. Connector Selection */}
-        <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-display font-semibold uppercase tracking-wider text-neutral-400">
-            1. Select Plug / Connector
+        {/* Connector Selection */}
+        <div className="flex flex-col gap-2.5">
+          <label className="text-xs font-display text-neutral-300 uppercase tracking-wider font-semibold">
+            Select Connector Type
           </label>
-          <div className="grid grid-cols-3 gap-2">
-            {station.connectors.map((connector) => (
+          <div className="grid grid-cols-3 gap-2.5">
+            {station.connectors.map((c) => (
               <button
-                key={connector}
+                key={c}
                 type="button"
-                onClick={() => setSelectedConnector(connector)}
-                className={`py-2.5 px-3 rounded-xl border text-xs font-display font-semibold transition-all cursor-pointer ${
-                  selectedConnector === connector
-                    ? 'bg-[#0052FF] text-white border-[#0052FF] shadow-[0_0_15px_rgba(0,82,255,0.4)]'
-                    : 'bg-white/5 text-neutral-300 border-white/5 hover:border-white/20'
+                onClick={() => setSelectedConnector(c)}
+                className={`py-3 px-3 rounded-2xl font-display text-xs font-bold uppercase tracking-wider transition-all border cursor-pointer ${
+                  selectedConnector === c
+                    ? 'bg-[#0052FF] text-white border-[#38aaff]/60 shadow-[0_0_20px_rgba(0,82,255,0.45)]'
+                    : 'bg-white/[0.04] text-neutral-300 border-white/10 hover:border-white/20'
                 }`}
               >
-                {connector}
+                {c}
               </button>
             ))}
           </div>
         </div>
 
-        {/* 2. Select Port & Time */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-display font-semibold uppercase tracking-wider text-neutral-400">
-              2. Charging Gun / Port
-            </label>
-            <div className="grid grid-cols-4 gap-1.5">
-              {Array.from({ length: Math.min(station.totalPorts, 8) }).map((_, i) => (
+        {/* Charging Port Selection */}
+        <div className="flex flex-col gap-2.5">
+          <label className="text-xs font-display text-neutral-300 uppercase tracking-wider font-semibold">
+            Select Charging Port Gun
+          </label>
+          <div className="grid grid-cols-4 gap-2.5">
+            {Array.from({ length: Math.min(station.totalPorts, 8) }).map((_, i) => {
+              const portNum = i + 1;
+              const isSelected = selectedPort === portNum;
+              return (
                 <button
-                  key={i + 1}
+                  key={portNum}
                   type="button"
-                  onClick={() => setSelectedPort(i + 1)}
-                  className={`py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                    selectedPort === i + 1
-                      ? 'bg-white text-black'
-                      : 'bg-white/5 text-neutral-400 hover:text-white border border-white/5'
+                  onClick={() => setSelectedPort(portNum)}
+                  className={`py-3 rounded-2xl font-mono text-xs font-bold transition-all border cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#0052FF] text-white border-[#38aaff]/60 shadow-[0_0_20px_rgba(0,82,255,0.45)]'
+                      : 'bg-white/[0.04] text-neutral-300 border-white/10 hover:border-white/20'
                   }`}
                 >
-                  #{i + 1}
+                  Gun #{portNum}
                 </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-display font-semibold uppercase tracking-wider text-neutral-400">
-              Duration
-            </label>
-            <div className="grid grid-cols-4 gap-1.5">
-              {[15, 30, 45, 60].map((mins) => (
-                <button
-                  key={mins}
-                  type="button"
-                  onClick={() => setDurationMinutes(mins)}
-                  className={`py-2 rounded-lg text-xs font-display font-semibold transition-all cursor-pointer ${
-                    durationMinutes === mins
-                      ? 'bg-[#0052FF] text-white'
-                      : 'bg-white/5 text-neutral-400 hover:text-white border border-white/5'
-                  }`}
-                >
-                  {mins}m
-                </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* 3. Estimated Output & Price breakdown */}
-        <div className="p-4 rounded-2xl bg-[#141414] border border-white/8 flex flex-col gap-3">
-          <div className="flex items-center justify-between text-xs">
-            <span className="flex items-center gap-1.5 text-neutral-400">
-              <BatteryCharging className="w-4 h-4 text-[#0052FF]" />
-              Estimated Energy Added:
+        {/* Duration Selection */}
+        <div className="flex flex-col gap-2.5">
+          <label className="text-xs font-display text-neutral-300 uppercase tracking-wider font-semibold">
+            Session Duration
+          </label>
+          <div className="grid grid-cols-4 gap-2.5">
+            {[15, 30, 45, 60].map((mins) => (
+              <button
+                key={mins}
+                type="button"
+                onClick={() => setDurationMinutes(mins)}
+                className={`py-3 rounded-2xl font-display text-xs font-bold uppercase tracking-wider transition-all border cursor-pointer ${
+                  durationMinutes === mins
+                    ? 'bg-white text-black border-white shadow-md'
+                    : 'bg-white/[0.04] text-neutral-300 border-white/10 hover:border-white/20'
+                }`}
+              >
+                {mins} Mins
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Energy & Price Estimate Card */}
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-white/12 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-[11px] font-display text-neutral-400 uppercase tracking-wider">
+              Estimated Energy Added
             </span>
-            <span className="font-mono font-bold text-white text-sm">~{estimatedKwh} kWh</span>
+            <span className="font-mono text-xl font-bold text-white flex items-center gap-1 mt-0.5">
+              <Zap className="w-4 h-4 text-[#0052FF]" />
+              ~{estimatedKwh} kWh
+            </span>
           </div>
 
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-neutral-400">Energy Subtotal ({estimatedKwh} kWh @ {station.currency}{station.pricingPerKwh}):</span>
-            <span className="font-mono text-neutral-200">{station.currency}{energyCost.toFixed(2)}</span>
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-neutral-400">Reservation Lock Fee:</span>
-            <span className="font-mono text-neutral-200">{station.currency}{reservationFee.toFixed(2)}</span>
-          </div>
-
-          <div className="flex items-center justify-between pt-2 border-t border-white/10 font-display">
-            <span className="font-bold text-sm text-white">Estimated Total</span>
-            <span className="font-bold text-lg text-[#0052FF]">
-              {station.currency}{totalCost.toFixed(2)}
+          <div className="flex flex-col items-end">
+            <span className="text-[11px] font-display text-neutral-400 uppercase tracking-wider">
+              Estimated Cost
+            </span>
+            <span className="font-mono text-2xl font-bold text-[#38aaff]">
+              ${estimatedCost.toFixed(2)}
             </span>
           </div>
         </div>
 
-        {/* Bottom Confirm Button */}
+        {/* Confirm Reservation Button */}
         <button
           type="button"
-          disabled={isSubmitting}
-          onClick={handleConfirmBooking}
-          className="w-full py-4 rounded-2xl bg-[#0052FF] hover:bg-[#0041CC] text-white font-display font-bold text-xs uppercase tracking-widest transition-all duration-300 shadow-[0_8px_32px_rgba(0,82,255,0.4)] flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
+          onClick={handleConfirmReservation}
+          disabled={loading}
+          className="w-full h-14 rounded-2xl bg-[#0052FF] hover:bg-[#0041CC] text-white font-display text-sm font-bold uppercase tracking-widest transition-all shadow-[0_8px_30px_rgba(0,82,255,0.45)] hover:shadow-[0_12px_40px_rgba(0,82,255,0.65)] flex items-center justify-center gap-2.5 active:scale-[0.98] cursor-pointer"
         >
-          {isSubmitting ? (
-            'Locking Gun Slot...'
-          ) : (
-            <>
-              Confirm & Generate QR Pass
-              <ArrowRight className="w-4 h-4" />
-            </>
-          )}
+          {loading ? 'Locking Gun & Slot...' : 'Confirm Fast-Pass Reservation'}
+          <ArrowRight className="w-4 h-4" />
         </button>
       </div>
     </div>
