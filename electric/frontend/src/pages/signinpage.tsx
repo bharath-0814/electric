@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./signinpage.css";
 import { StationMap } from "../components/StationMap";
+import { GlassPillNav } from "../components/GlassPillNav";
 import { BookingModal } from "../components/BookingModal";
 import { BookingPassModal } from "../components/BookingPassModal";
 import { UserBookingsDrawer } from "../components/UserBookingsDrawer";
@@ -93,31 +94,6 @@ function StatBlock({
   );
 }
 
-// Nav link with underline
-function NavLink({ children, href, light = false, onClick }: { children: string; href: string; light?: boolean; onClick?: () => void }) {
-  return (
-    <a
-      href={href}
-      onClick={(e) => {
-        if (onClick) {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="relative font-display text-[11px] font-medium tracking-[0.16em] uppercase group transition-colors duration-300"
-      style={{ color: light ? "rgba(255,255,255,0.6)" : "#717171" }}
-    >
-      <span className="group-hover:opacity-100" style={{ color: light ? "#fff" : "#0A0A0A" }}>
-        {children}
-      </span>
-      <span
-        className="absolute -bottom-0.5 left-0 w-full h-px origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
-        style={{ background: light ? "#fff" : "#0052FF" }}
-      />
-    </a>
-  );
-}
-
 /* ═══════════════════════════════════════
    App
 ═══════════════════════════════════════ */
@@ -135,6 +111,9 @@ export default function Signinpage() {
 
   // Modals state
   const [authOpen, setAuthOpen] = useState(false);
+  const [authPromptReason, setAuthPromptReason] = useState<string>("");
+  const [pendingAuthAction, setPendingAuthAction] = useState<(() => void) | null>(null);
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [bookingsDrawerOpen, setBookingsDrawerOpen] = useState(false);
@@ -143,7 +122,6 @@ export default function Signinpage() {
 
   const statsSection = useInView<HTMLDivElement>(0.3);
   const featSection  = useInView<HTMLDivElement>(0.15);
-  const ctaSection   = useInView<HTMLDivElement>(0.3);
   const stationSection = useInView<HTMLDivElement>(0.1);
 
   useEffect(() => {
@@ -169,6 +147,25 @@ export default function Signinpage() {
     }
   };
 
+  const handleRequireAuth = (reason: string, onAuthed?: () => void) => {
+    setAuthPromptReason(reason);
+    if (onAuthed) {
+      setPendingAuthAction(() => onAuthed);
+    } else {
+      setPendingAuthAction(null);
+    }
+    setAuthOpen(true);
+  };
+
+  const handleAuthSuccess = (user: EvoraUser) => {
+    setCurrentUser(user);
+    setAuthOpen(false);
+    if (pendingAuthAction) {
+      pendingAuthAction();
+      setPendingAuthAction(null);
+    }
+  };
+
   const handleOpenBooking = (station: Station) => {
     setBookingStation(station);
   };
@@ -176,6 +173,16 @@ export default function Signinpage() {
   const handleBookingSuccess = (reservation: Reservation) => {
     setBookingStation(null);
     setActiveReservationPass(reservation);
+  };
+
+  const handleOpenPassesDrawer = () => {
+    if (!currentUser) {
+      handleRequireAuth("Sign in with Google to view and manage your active charging passes.", () => {
+        setBookingsDrawerOpen(true);
+      });
+    } else {
+      setBookingsDrawerOpen(true);
+    }
   };
 
   return (
@@ -190,7 +197,7 @@ export default function Signinpage() {
           borderBottom: navDark ? "1px solid rgba(0,0,0,0.06)" : "none",
         }}
       >
-        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
           {/* Wordmark */}
           <a
             href="#home"
@@ -204,31 +211,17 @@ export default function Signinpage() {
             <span style={{ color: "#0052FF" }}>EV</span>ORA
           </a>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-10">
-            <NavLink href="#home" light={!navDark} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-              Home
-            </NavLink>
-            <NavLink href="#about" light={!navDark} onClick={() => scrollToSection("about-section")}>
-              About
-            </NavLink>
-            <NavLink href="#features" light={!navDark} onClick={() => scrollToSection("features-section")}>
-              Features
-            </NavLink>
-            <NavLink href="#station" light={!navDark} onClick={() => scrollToSection("station-section")}>
-              Stations
-            </NavLink>
-            <NavLink href="#support" light={!navDark} onClick={() => setContactOpen(true)}>
-              Support
-            </NavLink>
-          </nav>
+          {/* Desktop Nav: ReactBits Glass Surface Pillbar */}
+          <div className="hidden md:block">
+            <GlassPillNav navDark={navDark} />
+          </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {/* Quick Passes Drawer Trigger */}
             <button
-              onClick={() => setBookingsDrawerOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full font-display text-[11px] font-semibold tracking-[0.14em] uppercase transition-all duration-300 border cursor-pointer"
+              onClick={handleOpenPassesDrawer}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full font-display text-[11px] font-semibold tracking-[0.14em] uppercase transition-all duration-300 border cursor-pointer"
               style={{
                 background: navDark ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.08)",
                 color: navDark ? "#0A0A0A" : "#fff",
@@ -257,7 +250,7 @@ export default function Signinpage() {
               </button>
             ) : (
               <button
-                onClick={() => setAuthOpen(true)}
+                onClick={() => handleRequireAuth("Sign in with Google to access reserved charging slots & fast passes.")}
                 className="hidden md:block font-display text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-300 cursor-pointer"
                 style={{ color: navDark ? "#717171" : "rgba(255,255,255,0.6)" }}
               >
@@ -346,7 +339,7 @@ export default function Signinpage() {
                 onClick={() => {
                   setMenuOpen(false);
                   if (currentUser) setProfileOpen(true);
-                  else setAuthOpen(true);
+                  else handleRequireAuth("Sign in with Google to access reserved charging slots & fast passes.");
                 }}
               >
                 {currentUser ? `Account (${currentUser.displayName})` : "Log In"}
@@ -355,7 +348,7 @@ export default function Signinpage() {
                 className="text-left font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0052FF] cursor-pointer"
                 onClick={() => {
                   setMenuOpen(false);
-                  setBookingsDrawerOpen(true);
+                  handleOpenPassesDrawer();
                 }}
               >
                 My Fast Passes
@@ -567,6 +560,7 @@ export default function Signinpage() {
           <StationMap
             onBookStation={handleOpenBooking}
             userEmail={currentUser?.email}
+            onRequireAuth={handleRequireAuth}
           />
         </div>
       </section>
@@ -837,62 +831,6 @@ export default function Signinpage() {
         </div>
       </section>
 
-      {/* ══════════════ CTA BANNER ══════════════ */}
-      <section
-        ref={ctaSection.ref}
-        className="mx-6 md:mx-8 mb-8 rounded-3xl overflow-hidden"
-        style={{ background: "#0052FF", boxShadow: "0 24px 80px rgba(0,82,255,0.35)" }}
-      >
-        <div className="px-10 md:px-20 py-20 flex flex-col md:flex-row items-center justify-between gap-10">
-          <div>
-            <h2
-              className="font-display font-bold text-white leading-tight mb-4"
-              style={{
-                fontSize: "clamp(28px, 4vw, 56px)",
-                opacity: ctaSection.visible ? 1 : 0,
-                animation: ctaSection.visible ? "fadeUp 0.7s 0.1s both" : "none",
-              }}
-            >
-              Ready to make the switch?
-            </h2>
-            <p
-              style={{
-                color: "rgba(255,255,255,0.65)",
-                fontSize: "16px",
-                lineHeight: 1.7,
-                maxWidth: "400px",
-                opacity: ctaSection.visible ? 1 : 0,
-                animation: ctaSection.visible ? "fadeUp 0.7s 0.2s both" : "none",
-              }}
-            >
-              Find your nearest Evora station, or talk to our team about bringing Evora to your building, campus, or fleet.
-            </p>
-          </div>
-          <div
-            className="flex flex-col sm:flex-row gap-4 shrink-0"
-            style={{
-              opacity: ctaSection.visible ? 1 : 0,
-              animation: ctaSection.visible ? "fadeUp 0.7s 0.35s both" : "none",
-            }}
-          >
-            <button
-              onClick={() => scrollToSection("station-section")}
-              className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
-              style={{ background: "#fff", color: "#0052FF", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
-            >
-              Find Station
-            </button>
-            <button
-              onClick={() => setContactOpen(true)}
-              className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
-              style={{ background: "rgba(255,255,255,0.12)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}
-            >
-              Talk to Sales
-            </button>
-          </div>
-        </div>
-      </section>
-
       {/* ══════════════ FOOTER ══════════════ */}
       <footer className="max-w-7xl mx-auto px-8 pt-16 pb-10">
         <div className="flex flex-col md:flex-row justify-between gap-12 pb-12">
@@ -966,8 +904,12 @@ export default function Signinpage() {
       {/* ══════════════ MODALS & DRAWERS ══════════════ */}
       <AuthModal
         isOpen={authOpen}
-        onClose={() => setAuthOpen(false)}
-        onSuccess={(user) => setCurrentUser(user)}
+        promptReason={authPromptReason}
+        onClose={() => {
+          setAuthOpen(false);
+          setPendingAuthAction(null);
+        }}
+        onSuccess={handleAuthSuccess}
       />
 
       {currentUser && (

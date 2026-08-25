@@ -12,9 +12,14 @@ import { Search, Crosshair, Map as MapIcon, List, Zap, X } from 'lucide-react';
 interface StationMapProps {
   onBookStation: (station: Station) => void;
   userEmail?: string;
+  onRequireAuth: (reason: string, onAuthed?: () => void) => void;
 }
 
-export const StationMap: React.FC<StationMapProps> = ({ onBookStation, userEmail }) => {
+export const StationMap: React.FC<StationMapProps> = ({
+  onBookStation,
+  userEmail,
+  onRequireAuth,
+}) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
@@ -37,9 +42,13 @@ export const StationMap: React.FC<StationMapProps> = ({ onBookStation, userEmail
 
   const { showToast } = useToast();
 
-  // Load user favorites
+  // Load user favorites from Turso
   useEffect(() => {
-    tursoService.getFavorites(userEmail || '').then(setFavorites);
+    if (userEmail) {
+      tursoService.getFavorites(userEmail).then(setFavorites);
+    } else {
+      setFavorites([]);
+    }
   }, [userEmail]);
 
   // Fetch stations when filters or user location change
@@ -80,6 +89,17 @@ export const StationMap: React.FC<StationMapProps> = ({ onBookStation, userEmail
       mapInstanceRef.current = null;
     };
   }, []);
+
+  const handleBookTrigger = (station: Station) => {
+    if (!userEmail) {
+      onRequireAuth(
+        'Please sign in with Google to reserve a fast-charging slot and receive your verified QR Pass.',
+        () => onBookStation(station)
+      );
+    } else {
+      onBookStation(station);
+    }
+  };
 
   // Update Markers on the map
   useEffect(() => {
@@ -139,7 +159,7 @@ export const StationMap: React.FC<StationMapProps> = ({ onBookStation, userEmail
       marker.on('popupopen', () => {
         const btn = document.getElementById(`popup-book-btn-${station.id}`);
         if (btn) {
-          btn.onclick = () => onBookStation(station);
+          btn.onclick = () => handleBookTrigger(station);
         }
       });
 
@@ -151,7 +171,7 @@ export const StationMap: React.FC<StationMapProps> = ({ onBookStation, userEmail
       const bounds = L.latLngBounds(stations.map((s) => [s.lat, s.lng]));
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
     }
-  }, [stations, selectedStation, searchQuery, onBookStation]);
+  }, [stations, selectedStation, searchQuery, userEmail]);
 
   // Locate user GPS
   const handleLocateMe = () => {
@@ -191,7 +211,11 @@ export const StationMap: React.FC<StationMapProps> = ({ onBookStation, userEmail
   };
 
   const handleToggleFavorite = async (stationId: string) => {
-    const isFav = await tursoService.toggleFavorite(userEmail || '', stationId);
+    if (!userEmail) {
+      onRequireAuth('Sign in with Google to save favorite stations to your cloud profile.');
+      return;
+    }
+    const isFav = await tursoService.toggleFavorite(userEmail, stationId);
     setFavorites((prev) => (isFav ? [...prev, stationId] : prev.filter((id) => id !== stationId)));
     showToast(
       isFav ? 'Added to Favorites' : 'Removed from Favorites',
@@ -314,7 +338,7 @@ export const StationMap: React.FC<StationMapProps> = ({ onBookStation, userEmail
                     isSelected={selectedStation?.id === station.id}
                     isFavorite={favorites.includes(station.id)}
                     onSelect={handleSelectStation}
-                    onBook={onBookStation}
+                    onBook={handleBookTrigger}
                     onToggleFavorite={handleToggleFavorite}
                   />
                 ))}

@@ -1,5 +1,5 @@
 import { createClient, type Client } from '@libsql/client/web';
-import type { Reservation } from '../types';
+import type { Reservation, UserProfile } from '../types';
 
 let client: Client | null = null;
 
@@ -20,11 +20,76 @@ if (dbUrl) {
 
 const LOCAL_STORAGE_KEY_RESERVATIONS = 'evora_reservations';
 const LOCAL_STORAGE_KEY_FAVORITES = 'evora_favorites';
+const LOCAL_STORAGE_KEY_PROFILES = 'evora_user_profiles';
 
 export const tursoService = {
-  // Get all reservations for a user
-  async getUserReservations(userEmail: string): Promise<Reservation[]> {
+  // Sync User Profile with Turso SQL on Google Login
+  async syncGoogleUser(user: { uid: string; email: string; displayName: string; photoURL?: string }): Promise<void> {
     if (client) {
+      try {
+        await client.execute({
+          sql: `INSERT INTO users (id, firebase_uid, email, display_name, photo_url, created_at)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(firebase_uid) DO UPDATE SET
+                  display_name = excluded.display_name,
+                  photo_url = excluded.photo_url`,
+          args: [user.uid, user.uid, user.email, user.displayName, user.photoURL || null],
+        });
+      } catch (err) {
+        console.warn('[Evora Turso] User sync fallback to local store:', err);
+      }
+    }
+
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY_PROFILES);
+      const profiles: Record<string, any> = stored ? JSON.parse(stored) : {};
+      profiles[user.email] = {
+        ...profiles[user.email],
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY_PROFILES, JSON.stringify(profiles));
+    } catch {}
+  },
+
+  // Save vehicle specs in Turso
+  async saveUserProfile(email: string, profile: Partial<UserProfile>): Promise<void> {
+    if (client && email) {
+      try {
+        await client.execute({
+          sql: `UPDATE users SET
+                  vehicle_model = ?,
+                  battery_capacity_kwh = ?,
+                  preferred_connector = ?
+                WHERE email = ?`,
+          args: [
+            profile.vehicleModel || 'Tesla Model 3 Long Range',
+            profile.batteryCapacityKwh || 78,
+            profile.preferredConnector || 'CCS2',
+            email,
+          ],
+        });
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY_PROFILES);
+      const profiles: Record<string, any> = stored ? JSON.parse(stored) : {};
+      profiles[email] = {
+        ...profiles[email],
+        ...profile,
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY_PROFILES, JSON.stringify(profiles));
+    } catch {}
+  },
+
+  // Get all reservations for a user from Turso
+  async getUserReservations(userEmail: string): Promise<Reservation[]> {
+    if (client && userEmail) {
       try {
         const rs = await client.execute({
           sql: 'SELECT * FROM reservations WHERE user_email = ? ORDER BY start_time DESC',
@@ -56,13 +121,13 @@ export const tursoService = {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY_RESERVATIONS);
       const list: Reservation[] = stored ? JSON.parse(stored) : [];
-      return list.filter((item) => item.userEmail === userEmail || !userEmail);
+      return list.filter((item) => item.userEmail === userEmail);
     } catch {
       return [];
     }
   },
 
-  // Save new reservation
+  // Save new reservation in Turso
   async createReservation(reservation: Reservation): Promise<Reservation> {
     if (client) {
       try {
@@ -134,7 +199,7 @@ export const tursoService = {
     return true;
   },
 
-  // Get favorite station IDs
+  // Get favorite station IDs from Turso
   async getFavorites(userEmail: string): Promise<string[]> {
     if (client && userEmail) {
       try {

@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { authService, type EvoraUser } from '../lib/firebase';
+import { tursoService } from '../lib/tursoClient';
 import { useToast } from '../context/ToastContext';
-import { X, Mail, Lock, User, Sparkles, ArrowRight } from 'lucide-react';
+import { X, Mail, Lock, User, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (user: EvoraUser) => void;
+  promptReason?: string;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  promptReason,
+}) => {
   if (!isOpen) return null;
 
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -24,7 +31,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     setLoading(true);
     try {
       const user = await authService.loginWithGoogle();
-      showToast(`Welcome back, ${user.displayName}!`, 'Signed in with Google', 'success');
+      await tursoService.syncGoogleUser(user);
+      showToast(`Welcome back, ${user.displayName}!`, 'Signed in with Google & synced with Turso DB', 'success');
       onSuccess(user);
       onClose();
     } catch (err: any) {
@@ -38,6 +46,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     setLoading(true);
     try {
       const user = await authService.loginWithEmail('alex.driver@evora.energy', 'demopass123');
+      await tursoService.syncGoogleUser(user);
       showToast('Demo Driver Session Active', 'You are signed in as Alex Driver.', 'success');
       onSuccess(user);
       onClose();
@@ -63,6 +72,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         user = await authService.loginWithEmail(email, password);
         showToast(`Welcome back, ${user.displayName}!`, 'Signed in successfully.', 'success');
       }
+      await tursoService.syncGoogleUser(user);
       onSuccess(user);
       onClose();
     } catch (err: any) {
@@ -81,14 +91,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <div className="font-display text-xl font-bold tracking-[0.12em] uppercase mb-1">
-              <span className="text-[#0052FF]">EV</span>ORA{' '}
-              <span className="text-xs text-neutral-400 font-normal">ACCESS</span>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-display text-xl font-bold tracking-[0.12em] uppercase">
+                <span className="text-[#0052FF]">EV</span>ORA
+              </span>
+              <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-neutral-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+                <ShieldCheck className="w-3 h-3 text-[#0052FF]" /> Turso SQL
+              </span>
             </div>
             <p className="text-xs text-neutral-400">
-              {mode === 'login'
-                ? 'Sign in to access reserved charging slots & fast passes.'
-                : 'Create an account to join the next-generation charging grid.'}
+              {promptReason ||
+                (mode === 'login'
+                  ? 'Sign in to access fast-charging reservations, digital passes, and saved stations.'
+                  : 'Create an account to join the next-generation charging grid.')}
             </p>
           </div>
           <button
@@ -99,13 +114,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </button>
         </div>
 
-        {/* Google & Demo Buttons */}
+        {/* Primary Google Auth Button */}
         <div className="flex flex-col gap-2.5">
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-neutral-100 text-black font-display text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-98 cursor-pointer"
+            className="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-neutral-100 text-black font-display text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-3 transition-all shadow-[0_4px_20px_rgba(255,255,255,0.15)] active:scale-98 cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -125,7 +140,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
               />
             </svg>
-            Continue with Google
+            Sign in with Google
           </button>
 
           <button
