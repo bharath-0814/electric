@@ -200,7 +200,7 @@ export default function Signinpage() {
           borderBottom: navDark ? "1px solid rgba(0,0,0,0.06)" : "none",
         }}
       >
-        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between relative">
           {/* Wordmark */}
           <a
             href="#home"
@@ -208,19 +208,19 @@ export default function Signinpage() {
               e.preventDefault();
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="font-display text-xl font-bold tracking-[0.14em] uppercase select-none cursor-pointer"
+            className="font-display text-xl font-bold tracking-[0.14em] uppercase select-none cursor-pointer z-10"
             style={{ color: navDark ? "#0A0A0A" : "#fff" }}
           >
             <span style={{ color: "#0052FF" }}>EV</span>ORA
           </a>
 
-          {/* Desktop Nav: Apple Glass Surface Pillbar */}
-          <div className="hidden md:block">
+          {/* Desktop Nav: Apple Glass Surface Pillbar - Perfectly Centered */}
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center justify-center pointer-events-auto z-10">
             <GlassPillNav navDark={navDark} />
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 z-10">
             {/* Quick Passes Drawer Trigger */}
             <button
               onClick={handleOpenPassesDrawer}

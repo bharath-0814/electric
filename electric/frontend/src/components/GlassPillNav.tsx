@@ -56,25 +56,25 @@ export const GlassPillNav: React.FC<GlassPillNavProps> = ({ navDark = false }) =
 
   return (
     <div
-      className="relative flex items-center p-1.5 rounded-full transition-all duration-500 shadow-[0_16px_40px_rgba(0,0,0,0.35)]"
+      className="relative flex items-center p-2 rounded-full transition-all duration-500 shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
       style={{
         background: navDark
-          ? 'rgba(10, 10, 14, 0.72)'
-          : 'rgba(255, 255, 255, 0.08)',
-        backdropFilter: 'blur(30px) saturate(210%)',
-        WebkitBackdropFilter: 'blur(30px) saturate(210%)',
+          ? 'rgba(12, 12, 16, 0.82)'
+          : 'rgba(255, 255, 255, 0.12)',
+        backdropFilter: 'blur(36px) saturate(220%)',
+        WebkitBackdropFilter: 'blur(36px) saturate(220%)',
         border: navDark
-          ? '1px solid rgba(255, 255, 255, 0.14)'
-          : '1px solid rgba(255, 255, 255, 0.22)',
+          ? '1px solid rgba(255, 255, 255, 0.18)'
+          : '1px solid rgba(255, 255, 255, 0.28)',
         boxShadow: navDark
-          ? '0 20px 50px -10px rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25)'
-          : '0 20px 50px -10px rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.35)',
+          ? '0 25px 60px -12px rgba(0, 0, 0, 0.7), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.3)'
+          : '0 25px 60px -12px rgba(0, 0, 0, 0.45), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.45)',
       }}
     >
       {/* Top Glass Specular Refraction Highlight */}
-      <div className="absolute inset-x-5 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full pointer-events-none" />
+      <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/50 to-transparent rounded-full pointer-events-none" />
 
-      <nav className="flex items-center gap-1 relative z-10">
+      <nav className="flex items-center gap-1.5 relative z-10">
         {NAV_ITEMS.map((item) => {
           const isActive = activeSection === item.targetId;
           const isHovered = hoveredSection === item.targetId;
@@ -86,18 +86,18 @@ export const GlassPillNav: React.FC<GlassPillNavProps> = ({ navDark = false }) =
               onClick={() => handleScrollTo(item.targetId)}
               onMouseEnter={() => setHoveredSection(item.targetId)}
               onMouseLeave={() => setHoveredSection(null)}
-              className={`relative px-5 py-2.5 rounded-full font-display text-[12px] font-bold tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer select-none ${
+              className={`relative px-6 py-3 rounded-full font-display text-[13px] font-bold tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer select-none ${
                 isActive
                   ? 'text-white'
                   : navDark
                   ? 'text-neutral-300 hover:text-white'
-                  : 'text-white/80 hover:text-white'
+                  : 'text-white/85 hover:text-white'
               }`}
             >
-              {/* Active Apple Glass Pill Indicator */}
+              {/* Active Glass Pill Highlight */}
               {isActive && (
                 <div
-                  className="absolute inset-0 rounded-full bg-[#0052FF] border border-[#38aaff]/60 shadow-[0_0_20px_rgba(0,82,255,0.65),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-all duration-300"
+                  className="absolute inset-0 rounded-full bg-[#0052FF] border border-[#38aaff]/60 shadow-[0_0_24px_rgba(0,82,255,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.45)] transition-all duration-300"
                   style={{ animation: 'fadeIn 0.25s ease-out' }}
                 />
               )}
@@ -105,7 +105,7 @@ export const GlassPillNav: React.FC<GlassPillNavProps> = ({ navDark = false }) =
               {/* Hover effect when not active */}
               {!isActive && isHovered && (
                 <div
-                  className="absolute inset-0 rounded-full bg-white/10 border border-white/15 transition-all duration-200"
+                  className="absolute inset-0 rounded-full bg-white/12 border border-white/20 transition-all duration-200"
                   style={{ animation: 'fadeIn 0.2s ease-out' }}
                 />
               )}
