@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Router - Vanilla JS</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+    
+    // Attach to window so script.js can use it
+    window.initializeApp = initializeApp;
+    window.getAuth = getAuth;
+    window.signInWithPopup = signInWithPopup;
+    window.GoogleAuthProvider = GoogleAuthProvider;
+    window.signOut = signOut;
+    window.onAuthStateChanged = onAuthStateChanged;
+  </script>
+</head>
+<body>
+  
+  <div class="container">
+    <header>
+      <h1>EV Router ⚡</h1>
+      <div id="user-info">
+        <span id="user-email"></span>
+        <button id="login-btn">Login with Google</button>
+        <button id="logout-btn" style="display: none;">Logout</button>
+      </div>
+    </header>
+    
+    <main>
+      <div class="card">
+        <h2>Backend Status</h2>
+        <p id="backend-status">Checking connection...</p>
+      </div>
+
+      <div class="card">
+        <h2>Interactive Map</h2>
+        <p>TomTom Map will be loaded here.</p>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
