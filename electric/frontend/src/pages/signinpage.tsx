@@ -1,7 +1,15 @@
-
 import { useEffect, useRef, useState } from "react";
 import "./signinpage.css";
-
+import { StationMap } from "../components/StationMap";
+import { BookingModal } from "../components/BookingModal";
+import { BookingPassModal } from "../components/BookingPassModal";
+import { UserBookingsDrawer } from "../components/UserBookingsDrawer";
+import { AuthModal } from "../components/AuthModal";
+import { UserProfileModal } from "../components/UserProfileModal";
+import { ContactModal } from "../components/ContactModal";
+import { authService, type EvoraUser } from "../lib/firebase";
+import type { Station, Reservation } from "../types";
+import { QrCode } from "lucide-react";
 
 function useInView<T extends HTMLElement>(threshold = 0.2) {
   const ref = useRef<T>(null);
@@ -86,10 +94,16 @@ function StatBlock({
 }
 
 // Nav link with underline
-function NavLink({ children, href, light = false }: { children: string; href: string; light?: boolean }) {
+function NavLink({ children, href, light = false, onClick }: { children: string; href: string; light?: boolean; onClick?: () => void }) {
   return (
     <a
       href={href}
+      onClick={(e) => {
+        if (onClick) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className="relative font-display text-[11px] font-medium tracking-[0.16em] uppercase group transition-colors duration-300"
       style={{ color: light ? "rgba(255,255,255,0.6)" : "#717171" }}
     >
@@ -116,9 +130,21 @@ export default function Signinpage() {
   const [scrollY, setScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // User auth state
+  const [currentUser, setCurrentUser] = useState<EvoraUser | null>(null);
+
+  // Modals state
+  const [authOpen, setAuthOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [bookingsDrawerOpen, setBookingsDrawerOpen] = useState(false);
+  const [bookingStation, setBookingStation] = useState<Station | null>(null);
+  const [activeReservationPass, setActiveReservationPass] = useState<Reservation | null>(null);
+
   const statsSection = useInView<HTMLDivElement>(0.3);
   const featSection  = useInView<HTMLDivElement>(0.15);
   const ctaSection   = useInView<HTMLDivElement>(0.3);
+  const stationSection = useInView<HTMLDivElement>(0.1);
 
   useEffect(() => {
     const fn = () => setScrollY(window.scrollY);
@@ -126,7 +152,31 @@ export default function Signinpage() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  // Sync Firebase / Demo User
+  useEffect(() => {
+    const unsub = authService.subscribe((user) => {
+      setCurrentUser(user);
+    });
+    return () => unsub();
+  }, []);
+
   const navDark = scrollY > 60;
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleOpenBooking = (station: Station) => {
+    setBookingStation(station);
+  };
+
+  const handleBookingSuccess = (reservation: Reservation) => {
+    setBookingStation(null);
+    setActiveReservationPass(reservation);
+  };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
@@ -142,34 +192,82 @@ export default function Signinpage() {
       >
         <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
           {/* Wordmark */}
-          <a href="#" className="font-display text-xl font-bold tracking-[0.12em] uppercase select-none"
-            style={{ color: navDark ? "#0A0A0A" : "#fff" }}>
+          <a
+            href="#home"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="font-display text-xl font-bold tracking-[0.12em] uppercase select-none cursor-pointer"
+            style={{ color: navDark ? "#0A0A0A" : "#fff" }}
+          >
             <span style={{ color: "#0052FF" }}>EV</span>ORA
           </a>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-10">
-            {[
-              ["Home", "#home"],
-              ["About", "#about"],
-              ["Features", "#features"],
-              ["Station", "#station"],
-              ["Support", "#support"],
-            ].map(([label, href]) => (
-              <NavLink key={label} href={href} light={!navDark}>{label}</NavLink>
-            ))}
+            <NavLink href="#home" light={!navDark} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              Home
+            </NavLink>
+            <NavLink href="#about" light={!navDark} onClick={() => scrollToSection("about-section")}>
+              About
+            </NavLink>
+            <NavLink href="#features" light={!navDark} onClick={() => scrollToSection("features-section")}>
+              Features
+            </NavLink>
+            <NavLink href="#station" light={!navDark} onClick={() => scrollToSection("station-section")}>
+              Stations
+            </NavLink>
+            <NavLink href="#support" light={!navDark} onClick={() => setContactOpen(true)}>
+              Support
+            </NavLink>
           </nav>
 
-          {/* Right */}
-          <div className="flex items-center gap-5">
+          {/* Right Actions */}
+          <div className="flex items-center gap-4">
+            {/* Quick Passes Drawer Trigger */}
             <button
-              className="hidden md:block font-display text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-300"
-              style={{ color: navDark ? "#717171" : "rgba(255,255,255,0.6)" }}
+              onClick={() => setBookingsDrawerOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full font-display text-[11px] font-semibold tracking-[0.14em] uppercase transition-all duration-300 border cursor-pointer"
+              style={{
+                background: navDark ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.08)",
+                color: navDark ? "#0A0A0A" : "#fff",
+                borderColor: navDark ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)",
+              }}
+              title="My Fast Passes"
             >
-              Log In
+              <QrCode className="w-3.5 h-3.5 text-[#0052FF]" />
+              <span className="hidden lg:inline">Passes</span>
             </button>
+
+            {/* User Log In / Profile button */}
+            {currentUser ? (
+              <button
+                onClick={() => setProfileOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-full font-display text-[11px] font-semibold tracking-[0.12em] uppercase transition-all duration-300 border cursor-pointer"
+                style={{
+                  background: navDark ? "#0052FF" : "rgba(0,82,255,0.2)",
+                  color: "#fff",
+                  borderColor: "#0052FF",
+                  boxShadow: "0 0 15px rgba(0,82,255,0.3)",
+                }}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span>{currentUser.displayName}</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="hidden md:block font-display text-[11px] font-medium tracking-[0.16em] uppercase transition-colors duration-300 cursor-pointer"
+                style={{ color: navDark ? "#717171" : "rgba(255,255,255,0.6)" }}
+              >
+                Log In
+              </button>
+            )}
+
             <button
-              className="font-display text-[11px] font-semibold tracking-[0.16em] uppercase px-6 py-3 rounded-full transition-all duration-300 active:scale-95"
+              onClick={() => setContactOpen(true)}
+              className="font-display text-[11px] font-semibold tracking-[0.16em] uppercase px-6 py-3 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
               style={{
                 background: navDark ? "#0052FF" : "rgba(255,255,255,0.12)",
                 color: navDark ? "#fff" : "#fff",
@@ -183,7 +281,7 @@ export default function Signinpage() {
 
             {/* Hamburger */}
             <button
-              className="md:hidden flex flex-col gap-1.5 p-2"
+              className="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer"
               onClick={() => setMenuOpen((open: boolean) => !open)}
               aria-label="Menu"
               aria-expanded={menuOpen}
@@ -203,30 +301,72 @@ export default function Signinpage() {
         {menuOpen && (
           <nav id="mobile-navigation" className="md:hidden border-t px-8 py-5" style={{ background: "rgba(250,250,250,0.98)", borderColor: "rgba(0,0,0,0.06)" }}>
             <div className="flex flex-col gap-5">
-              {[
-                ["Home", "#home"],
-                ["About", "#about"],
-                ["Features", "#features"],
-                ["Station", "#station"],
-                ["Support", "#support"],
-              ].map(([label, href]) => (
-                <a
-                  key={label}
-                  href={href}
-                  className="font-display text-xs font-semibold tracking-[0.16em] uppercase"
-                  style={{ color: "#0A0A0A" }}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {label}
-                </a>
-              ))}
+              <a
+                href="#home"
+                className="font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A]"
+                onClick={() => {
+                  setMenuOpen(false);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                Home
+              </a>
+              <a
+                href="#about"
+                className="font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A]"
+                onClick={() => {
+                  setMenuOpen(false);
+                  scrollToSection("about-section");
+                }}
+              >
+                About
+              </a>
+              <a
+                href="#features"
+                className="font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A]"
+                onClick={() => {
+                  setMenuOpen(false);
+                  scrollToSection("features-section");
+                }}
+              >
+                Features
+              </a>
+              <a
+                href="#station"
+                className="font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A]"
+                onClick={() => {
+                  setMenuOpen(false);
+                  scrollToSection("station-section");
+                }}
+              >
+                Stations & Map
+              </a>
+              <button
+                className="text-left font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A] cursor-pointer"
+                onClick={() => {
+                  setMenuOpen(false);
+                  if (currentUser) setProfileOpen(true);
+                  else setAuthOpen(true);
+                }}
+              >
+                {currentUser ? `Account (${currentUser.displayName})` : "Log In"}
+              </button>
+              <button
+                className="text-left font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0052FF] cursor-pointer"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setBookingsDrawerOpen(true);
+                }}
+              >
+                My Fast Passes
+              </button>
             </div>
           </nav>
         )}
       </header>
 
       {/* ══════════════ HERO ══════════════ */}
-      <section className="relative h-screen min-h-175 flex items-end overflow-hidden">
+      <section id="home" className="relative h-screen min-h-175 flex items-end overflow-hidden">
 
         {/* Background — full bleed cinematic car */}
         <div className="absolute inset-0">
@@ -286,12 +426,13 @@ export default function Signinpage() {
             style={{ animation: "fadeUp 0.8s 1.2s cubic-bezier(0.16,1,0.3,1) both" }}
           >
             <p style={{ color: "rgba(255,255,255,0.6)", maxWidth: "340px", lineHeight: 1.7, fontSize: "15px" }}>
-              
+              High-power 150-350kW liquid-cooled charging hubs connected to an intelligent renewable grid.
             </p>
 
             <div className="flex items-center gap-4 shrink-0">
               <button
-                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95"
+                onClick={() => scrollToSection("station-section")}
+                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
                 style={{
                   background: "#0052FF",
                   color: "#fff",
@@ -303,7 +444,8 @@ export default function Signinpage() {
                 Find Station
               </button>
               <button
-                className="font-display font-medium text-[12px] tracking-[0.15em] uppercase flex items-center gap-2 transition-all duration-300 group"
+                onClick={() => scrollToSection("technology-section")}
+                className="font-display font-medium text-[12px] tracking-[0.15em] uppercase flex items-center gap-2 transition-all duration-300 group cursor-pointer"
                 style={{ color: "rgba(255,255,255,0.7)" }}
               >
                 <span>Our Network</span>
@@ -337,7 +479,8 @@ export default function Signinpage() {
 
         {/* Scroll hint */}
         <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+          onClick={() => scrollToSection("stats-section")}
           style={{ animation: "fadeIn 1s 2.2s ease both" }}
         >
           <div className="w-px h-10 bg-linear-to-b from-transparent to-white/40"
@@ -347,6 +490,7 @@ export default function Signinpage() {
 
       {/* ══════════════ STATS ══════════════ */}
       <section
+        id="stats-section"
         ref={statsSection.ref}
         className="bg-[#FAFAFA] border-b"
         style={{ borderColor: "rgba(0,0,0,0.06)" }}
@@ -361,7 +505,7 @@ export default function Signinpage() {
       </section>
 
       {/* ══════════════ BRAND STATEMENT ══════════════ */}
-      <section className="py-28 border-b" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
+      <section id="about-section" className="py-28 border-b" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
         <div className="max-w-7xl mx-auto px-8">
 
           {/* Two-column header: label + headline left, body right */}
@@ -396,8 +540,40 @@ export default function Signinpage() {
         </div>
       </section>
 
+      {/* ══════════════ INTERACTIVE STATIONS MAP EXPLORER ══════════════ */}
+      <section
+        id="station-section"
+        ref={stationSection.ref}
+        className="py-28 bg-[#0A0A0A] text-white border-b"
+        style={{ borderColor: "rgba(255,255,255,0.06)" }}
+      >
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
+            <div>
+              <div className="inline-flex items-center gap-2 mb-3">
+                <span className="w-5 h-px bg-[#0052FF]" />
+                <Label light>Live Station Network & Booking</Label>
+              </div>
+              <h2 className="font-display font-bold text-white text-3xl md:text-5xl tracking-tight">
+                Locate. Filter. <span className="text-gradient">Reserve.</span>
+              </h2>
+            </div>
+            <p className="text-sm text-neutral-400 max-w-md">
+              Real-time availability, power outputs, and instant QR Fast-Pass reservation across 570+ premium fast-charging hubs.
+            </p>
+          </div>
+
+          {/* Interactive Map & List component */}
+          <StationMap
+            onBookStation={handleOpenBooking}
+            userEmail={currentUser?.email}
+          />
+        </div>
+      </section>
+
       {/* ══════════════ FEATURES ══════════════ */}
       <section
+        id="features-section"
         ref={featSection.ref}
         className="py-28"
       >
@@ -423,11 +599,15 @@ export default function Signinpage() {
             <div /> {/* spacer */}
             <div className="flex justify-end items-end">
               <a
-                href="#"
+                href="#station-section"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("station-section");
+                }}
                 className="font-display font-semibold text-[11px] tracking-[0.15em] uppercase flex items-center gap-2 group transition-colors duration-300"
                 style={{ color: "#0052FF" }}
               >
-                <span>All Features</span>
+                <span>Find A Station</span>
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -438,7 +618,7 @@ export default function Signinpage() {
           {/* Feature rows — strict 4-col grid per row */}
           <div className="flex flex-col divide-y" style={{ "--divide-color": "rgba(0,0,0,0.06)" } as React.CSSProperties}>
             {[
-              { num: "01", title: "Ultra-Fast 150 kW",        desc: "Dual-gun DC output sustains peak power for the full session. 200 miles of range in under 20 minutes, consistently.",                                                              tag: "Speed"          },
+              { num: "01", title: "Ultra-Fast 150-350 kW",   desc: "Dual-gun liquid-cooled DC output sustains peak power for the full session. 200 miles of range in under 15 minutes.",                                                              tag: "Speed"          },
               { num: "02", title: "Smart Grid Intelligence",   desc: "Real-time AI load balancing draws from renewable sources, reducing your carbon footprint by up to 80% per charge.",                                                                    tag: "Sustainability" },
               { num: "03", title: "Predictive Availability",   desc: "The Evora app surfaces live occupancy, queues, and pricing before you leave — so you always arrive to an open gun.",                                                                    tag: "Connectivity"   },
               { num: "04", title: "Multi-Layer Safety",        desc: "Automatic fault detection, arc suppression, surge protection, and tamper-resistant hardware — monitored around the clock.",                                                              tag: "Safety"         },
@@ -499,7 +679,7 @@ export default function Signinpage() {
       </section>
 
       {/* ══════════════ SPLIT SHOWCASE ══════════════ */}
-      <section className="bg-[#0A0A0A] overflow-hidden">
+      <section id="technology-section" className="bg-[#0A0A0A] overflow-hidden">
         <div className="max-w-7xl mx-auto px-8 py-28 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
           {/* Image — left on desktop */}
@@ -521,16 +701,16 @@ export default function Signinpage() {
             >
               <div>
                 <div className="font-display text-2xl font-bold" style={{ color: "#fff" }}>
-                  150 <span style={{ color: "#0052FF" }}>kW</span>
+                  350 <span style={{ color: "#0052FF" }}>kW</span>
                 </div>
                 <div className="text-[10px] tracking-widest uppercase mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>Peak Charge Rate</div>
               </div>
               {/* Mini progress bar */}
               <div className="flex-1 max-w-30">
                 <div className="h-1 rounded-full mb-1.5" style={{ background: "rgba(255,255,255,0.08)" }}>
-                  <div className="h-full w-[82%] rounded-full" style={{ background: "linear-gradient(90deg, #0052FF, #38aaff)" }} />
+                  <div className="h-full w-[88%] rounded-full" style={{ background: "linear-gradient(90deg, #0052FF, #38aaff)" }} />
                 </div>
-                <div className="text-[9px] tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>Session active</div>
+                <div className="text-[9px] tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>Ultra Session active</div>
               </div>
             </div>
           </div>
@@ -550,7 +730,7 @@ export default function Signinpage() {
             </div>
 
             <p style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.85, fontSize: "15px" }}>
-              Evora stations are deployed at premium locations — urban centers, highway corridors, destination hubs. You're never more than minutes from a charge.
+              Evora stations are deployed at premium locations — urban centers, highway corridors, destination hubs. You're never more than minutes from an ultra-fast charge.
             </p>
 
             {/* Spec table — 2-column grid, clean */}
@@ -559,7 +739,7 @@ export default function Signinpage() {
               style={{ background: "rgba(255,255,255,0.05)" }}
             >
               {[
-                { stat: "150 kW",  label: "Liquid-cooled\npeak output" },
+                { stat: "350 kW",  label: "Liquid-cooled\npeak output" },
                 { stat: "99.8%",   label: "Network\nuptime SLA" },
                 { stat: "80%",     label: "Carbon reduction\nper session" },
                 { stat: "< 1 min", label: "Average session\nstart time" },
@@ -577,12 +757,13 @@ export default function Signinpage() {
 
             <div>
               <button
-                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95"
+                onClick={() => scrollToSection("station-section")}
+                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
                 style={{ background: "#0052FF", color: "#fff", boxShadow: "0 8px 32px rgba(0,82,255,0.35)" }}
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 44px rgba(0,82,255,0.55)")}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,82,255,0.35)")}
               >
-                Explore Technology
+                Explore Live Stations
               </button>
             </div>
           </div>
@@ -621,7 +802,7 @@ export default function Signinpage() {
             <div className="grid grid-cols-2 gap-6">
               {[
                 { icon: "⚡", label: "Fast DC Charging" },
-                { icon: "📱", label: "App Control" },
+                { icon: "📱", label: "QR Pass Control" },
                 { icon: "🌿", label: "Green Energy" },
                 { icon: "🔒", label: "Secure Payment" },
               ].map(({ icon, label }) => (
@@ -638,7 +819,8 @@ export default function Signinpage() {
             </div>
 
             <button
-              className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full w-fit border-2 transition-all duration-300 active:scale-95 group"
+              onClick={() => scrollToSection("station-section")}
+              className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full w-fit border-2 transition-all duration-300 active:scale-95 group cursor-pointer"
               style={{ borderColor: "#0A0A0A", color: "#0A0A0A" }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = "#0A0A0A";
@@ -694,13 +876,15 @@ export default function Signinpage() {
             }}
           >
             <button
-              className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95"
+              onClick={() => scrollToSection("station-section")}
+              className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
               style={{ background: "#fff", color: "#0052FF", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
             >
               Find Station
             </button>
             <button
-              className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95"
+              onClick={() => setContactOpen(true)}
+              className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
               style={{ background: "rgba(255,255,255,0.12)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}
             >
               Talk to Sales
@@ -734,8 +918,23 @@ export default function Signinpage() {
               {col.links.map((l) => (
                 <a
                   key={l}
-                  href="#"
-                  className="text-sm transition-colors duration-200"
+                  href={l === "Stations" ? "#station-section" : l === "Features" ? "#features-section" : l === "About" ? "#about-section" : "#"}
+                  onClick={(e) => {
+                    if (l === "Stations") {
+                      e.preventDefault();
+                      scrollToSection("station-section");
+                    } else if (l === "Features") {
+                      e.preventDefault();
+                      scrollToSection("features-section");
+                    } else if (l === "About") {
+                      e.preventDefault();
+                      scrollToSection("about-section");
+                    } else if (l === "Contact" || l === "Help Center") {
+                      e.preventDefault();
+                      setContactOpen(true);
+                    }
+                  }}
+                  className="text-sm transition-colors duration-200 cursor-pointer"
                   style={{ color: "#717171" }}
                   onMouseEnter={e => (e.currentTarget.style.color = "#0A0A0A")}
                   onMouseLeave={e => (e.currentTarget.style.color = "#717171")}
@@ -763,7 +962,47 @@ export default function Signinpage() {
           </div>
         </div>
       </footer>
+
+      {/* ══════════════ MODALS & DRAWERS ══════════════ */}
+      <AuthModal
+        isOpen={authOpen}
+        onClose={() => setAuthOpen(false)}
+        onSuccess={(user) => setCurrentUser(user)}
+      />
+
+      {currentUser && (
+        <UserProfileModal
+          isOpen={profileOpen}
+          onClose={() => setProfileOpen(false)}
+          user={currentUser}
+          onLogout={() => setCurrentUser(null)}
+        />
+      )}
+
+      <ContactModal
+        isOpen={contactOpen}
+        onClose={() => setContactOpen(false)}
+      />
+
+      <UserBookingsDrawer
+        isOpen={bookingsDrawerOpen}
+        onClose={() => setBookingsDrawerOpen(false)}
+        userEmail={currentUser?.email || ""}
+        onViewPass={(reservation) => setActiveReservationPass(reservation)}
+      />
+
+      <BookingModal
+        station={bookingStation}
+        userEmail={currentUser?.email || "driver@evora.energy"}
+        userName={currentUser?.displayName || "Evora Driver"}
+        onClose={() => setBookingStation(null)}
+        onSuccess={handleBookingSuccess}
+      />
+
+      <BookingPassModal
+        reservation={activeReservationPass}
+        onClose={() => setActiveReservationPass(null)}
+      />
     </div>
   );
 }
-

@@ -1,9 +1,12 @@
 import Signinpage from "./pages/signinpage";
-function App()
-{
+import { ToastProvider } from "./context/ToastContext";
+
+function App() {
   return (
-    <Signinpage />
+    <ToastProvider>
+      <Signinpage />
+    </ToastProvider>
   );
 }
 
-export default App
+export default App;
