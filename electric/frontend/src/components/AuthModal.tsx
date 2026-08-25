@@ -29,13 +29,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleGoogleLogin = async () => {
     setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 5000);
     try {
       const user = await authService.loginWithGoogle();
-      await tursoService.syncGoogleUser(user);
-      showToast(`Welcome, ${user.displayName}!`, 'Authenticated with Google & Synced with Turso DB', 'success');
-      onSuccess(user);
-      onClose();
+      clearTimeout(timer);
+      if (user && user.uid !== 'redirecting') {
+        await tursoService.syncGoogleUser(user);
+        showToast(`Welcome, ${user.displayName}!`, 'Authenticated with Google & Synced with Turso DB', 'success');
+        onSuccess(user);
+        onClose();
+      }
     } catch (err: any) {
+      clearTimeout(timer);
       showToast('Authentication Error', err.message || 'Could not sign in with Google.', 'error');
     } finally {
       setLoading(false);
@@ -86,14 +91,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6 bg-black/85 backdrop-blur-xl">
       {/* Apple-grade Glassmorphism Container */}
       <div
-        className="relative w-full max-w-lg rounded-[36px] p-8 md:p-12 text-white shadow-[0_32px_90px_rgba(0,0,0,0.85)] flex flex-col gap-7 overflow-hidden transition-all duration-300"
+        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scroll rounded-[36px] p-8 md:p-12 text-white shadow-[0_32px_90px_rgba(0,0,0,0.85)] flex flex-col gap-7 transition-all duration-300"
         style={{
-          background: 'rgba(13, 13, 18, 0.88)',
+          background: 'rgba(13, 13, 18, 0.92)',
           backdropFilter: 'blur(40px) saturate(240%)',
           WebkitBackdropFilter: 'blur(40px) saturate(240%)',
           border: '1px solid rgba(255, 255, 255, 0.16)',
           boxShadow:
-            '0 32px 80px -10px rgba(0, 0, 0, 0.9), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 82, 255, 0.15)',
+            '0 32px 80px -10px rgba(0, 0, 0, 0.9), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 82, 255, 0.15)',
           animation: 'fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both',
         }}
       >
@@ -177,40 +182,46 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="flex-1 h-[1px] bg-white/10" />
         </div>
 
-        {/* Email Form */}
+        {/* Email Form with Non-overlapping Flex Icon Boxes */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {mode === 'signup' && (
-            <div className="relative flex items-center">
-              <User className="absolute left-4 w-5 h-5 text-neutral-400" />
+            <div className="flex items-center rounded-2xl bg-white/[0.05] border border-white/12 focus-within:border-[#0052FF] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all overflow-hidden">
+              <div className="w-14 h-14 flex items-center justify-center text-neutral-400 shrink-0">
+                <User className="w-5 h-5" />
+              </div>
               <input
                 type="text"
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-14 pl-12 pr-5 rounded-2xl bg-white/[0.05] border border-white/12 text-white placeholder:text-neutral-500 text-sm font-display outline-none focus:border-[#0052FF] focus:ring-4 focus:ring-[#0052FF]/20 transition-all"
+                className="w-full h-14 pr-5 bg-transparent text-white placeholder:text-neutral-500 text-sm font-display outline-none"
               />
             </div>
           )}
 
-          <div className="relative flex items-center">
-            <Mail className="absolute left-4 w-5 h-5 text-neutral-400" />
+          <div className="flex items-center rounded-2xl bg-white/[0.05] border border-white/12 focus-within:border-[#0052FF] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all overflow-hidden">
+            <div className="w-14 h-14 flex items-center justify-center text-neutral-400 shrink-0">
+              <Mail className="w-5 h-5" />
+            </div>
             <input
               type="email"
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-14 pl-12 pr-5 rounded-2xl bg-white/[0.05] border border-white/12 text-white placeholder:text-neutral-500 text-sm font-display outline-none focus:border-[#0052FF] focus:ring-4 focus:ring-[#0052FF]/20 transition-all"
+              className="w-full h-14 pr-5 bg-transparent text-white placeholder:text-neutral-500 text-sm font-display outline-none"
             />
           </div>
 
-          <div className="relative flex items-center">
-            <Lock className="absolute left-4 w-5 h-5 text-neutral-400" />
+          <div className="flex items-center rounded-2xl bg-white/[0.05] border border-white/12 focus-within:border-[#0052FF] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all overflow-hidden">
+            <div className="w-14 h-14 flex items-center justify-center text-neutral-400 shrink-0">
+              <Lock className="w-5 h-5" />
+            </div>
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full h-14 pl-12 pr-5 rounded-2xl bg-white/[0.05] border border-white/12 text-white placeholder:text-neutral-500 text-sm font-display outline-none focus:border-[#0052FF] focus:ring-4 focus:ring-[#0052FF]/20 transition-all"
+              className="w-full h-14 pr-5 bg-transparent text-white placeholder:text-neutral-500 text-sm font-display outline-none"
             />
           </div>
 
