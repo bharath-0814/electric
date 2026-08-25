@@ -1,14 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import "./signinpage.css";
 import { FloatingGlassNav } from "../components/FloatingGlassNav";
-import { BookingModal } from "../components/BookingModal";
-import { BookingPassModal } from "../components/BookingPassModal";
-import { UserBookingsDrawer } from "../components/UserBookingsDrawer";
 import { AuthModal } from "../components/AuthModal";
 import { UserProfileModal } from "../components/UserProfileModal";
-import { ContactModal } from "../components/ContactModal";
 import { authService, type EvoraUser } from "../lib/firebase";
-import type { Station, Reservation } from "../types";
 
 function useInView<T extends HTMLElement>(threshold = 0.2) {
   const ref = useRef<T>(null);
@@ -162,12 +157,7 @@ export default function Signinpage() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authPromptReason, setAuthPromptReason] = useState<string>("");
   const [pendingAuthAction, setPendingAuthAction] = useState<(() => void) | null>(null);
-
   const [profileOpen, setProfileOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
-  const [bookingsDrawerOpen, setBookingsDrawerOpen] = useState(false);
-  const [bookingStation, setBookingStation] = useState<Station | null>(null);
-  const [activeReservationPass, setActiveReservationPass] = useState<Reservation | null>(null);
 
   const statsSection = useInView<HTMLDivElement>(0.3);
   const featSection  = useInView<HTMLDivElement>(0.15);
@@ -209,31 +199,14 @@ export default function Signinpage() {
     }
   };
 
-  const handleBookingSuccess = (reservation: Reservation) => {
-    setBookingStation(null);
-    setActiveReservationPass(reservation);
-  };
-
-  const handleOpenPassesDrawer = () => {
-    if (!currentUser) {
-      handleRequireAuth("Sign in with Google to view and manage your active charging passes.", () => {
-        setBookingsDrawerOpen(true);
-      });
-    } else {
-      setBookingsDrawerOpen(true);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
 
-      {/* ══════════════ MASTER FLOATING LIQUID GLASS PILLBAR (TOP CENTER) ══════════════ */}
+      {/* ══════════════ MASTER FLOATING LIQUID GLASS PILLBAR (TOP LEFT) ══════════════ */}
       <FloatingGlassNav
         currentUser={currentUser}
-        onOpenPasses={handleOpenPassesDrawer}
-        onOpenAuth={() => handleRequireAuth("Sign in with Google to access reserved charging slots & fast passes.")}
+        onOpenAuth={() => handleRequireAuth("Sign in with Google to access your cloud profile & vehicle specs.")}
         onOpenProfile={() => setProfileOpen(true)}
-        onOpenContact={() => setContactOpen(true)}
       />
 
       {/* ══════════════ HERO SECTION (DYNAMIC VEHICLE FINISH CHANGER) ══════════════ */}
@@ -420,40 +393,6 @@ export default function Signinpage() {
         </div>
       </section>
 
-      {/* ══════════════ BRAND STATEMENT ══════════════ */}
-      <section id="about-section" className="py-28 border-b" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-            <div>
-              <Label className="block mb-5">Our Belief</Label>
-              <h2
-                className="font-display font-bold leading-[1.08] text-[#0A0A0A]"
-                style={{ fontSize: "clamp(30px, 4.5vw, 58px)", animation: "fadeUp 0.8s 0.1s both" }}
-              >
-                The future of driving
-                <br />shouldn't wait.{" "}
-                <span className="text-gradient">Evora</span>
-                <br />
-                <span className="text-gradient">makes it instant.</span>
-              </h2>
-            </div>
-
-            <div
-              className="flex flex-col gap-6 lg:pt-16"
-              style={{ animation: "fadeUp 0.8s 0.25s both" }}
-            >
-              <p style={{ color: "#3A3A3A", lineHeight: 1.85, fontSize: "15px" }}>
-                We built Evora because the transition to electric shouldn't feel like a compromise. Every station we deploy is positioned, designed, and calibrated to make charging feel as natural as breathing — whether you're crossing the country or running errands.
-              </p>
-              <div className="w-12 h-px" style={{ background: "rgba(0,82,255,0.3)" }} />
-              <p style={{ color: "#717171", lineHeight: 1.85, fontSize: "15px" }}>
-                Our proprietary liquid-cooled cables sustain peak output across every session. Powered by TomTom EV network intelligence, our AI balances load in real time, drawing from the cleanest available grid sources.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ══════════════ FEATURES ══════════════ */}
       <section
         id="features-section"
@@ -623,13 +562,13 @@ export default function Signinpage() {
 
             <div>
               <button
-                onClick={() => setContactOpen(true)}
+                onClick={() => scrollToSection("features-section")}
                 className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
                 style={{ background: "#0052FF", color: "#fff", boxShadow: "0 8px 32px rgba(0,82,255,0.35)" }}
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 44px rgba(0,82,255,0.55)")}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,82,255,0.35)")}
               >
-                Connect with Evora
+                Explore Features
               </button>
             </div>
           </div>
@@ -725,7 +664,7 @@ export default function Signinpage() {
               {col.links.map((l) => (
                 <a
                   key={l}
-                  href={l === "Features" ? "#features-section" : l === "Network" ? "#technology-section" : l === "About" ? "#about-section" : "#"}
+                  href={l === "Features" ? "#features-section" : l === "Network" ? "#technology-section" : "#"}
                   onClick={(e) => {
                     if (l === "Features") {
                       e.preventDefault();
@@ -733,12 +672,6 @@ export default function Signinpage() {
                     } else if (l === "Network") {
                       e.preventDefault();
                       scrollToSection("technology-section");
-                    } else if (l === "About") {
-                      e.preventDefault();
-                      scrollToSection("about-section");
-                    } else if (l === "Contact" || l === "Help Center") {
-                      e.preventDefault();
-                      setContactOpen(true);
                     }
                   }}
                   className="text-sm font-semibold transition-colors duration-200 cursor-pointer"
@@ -770,7 +703,7 @@ export default function Signinpage() {
         </div>
       </footer>
 
-      {/* ══════════════ MODALS & DRAWERS ══════════════ */}
+      {/* ══════════════ MODALS ══════════════ */}
       <AuthModal
         isOpen={authOpen}
         promptReason={authPromptReason}
@@ -789,31 +722,6 @@ export default function Signinpage() {
           onLogout={() => setCurrentUser(null)}
         />
       )}
-
-      <ContactModal
-        isOpen={contactOpen}
-        onClose={() => setContactOpen(false)}
-      />
-
-      <UserBookingsDrawer
-        isOpen={bookingsDrawerOpen}
-        onClose={() => setBookingsDrawerOpen(false)}
-        userEmail={currentUser?.email || ""}
-        onViewPass={(reservation) => setActiveReservationPass(reservation)}
-      />
-
-      <BookingModal
-        station={bookingStation}
-        userEmail={currentUser?.email || "driver@evora.energy"}
-        userName={currentUser?.displayName || "Evora Driver"}
-        onClose={() => setBookingStation(null)}
-        onSuccess={handleBookingSuccess}
-      />
-
-      <BookingPassModal
-        reservation={activeReservationPass}
-        onClose={() => setActiveReservationPass(null)}
-      />
     </div>
   );
 }
