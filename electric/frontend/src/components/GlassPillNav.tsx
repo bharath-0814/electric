@@ -9,7 +9,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Home', targetId: 'home' },
   { label: 'About', targetId: 'about-section' },
   { label: 'Features', targetId: 'features-section' },
-  { label: 'Stations', targetId: 'station-section' },
+  { label: 'Network', targetId: 'technology-section' },
 ];
 
 interface GlassPillNavProps {

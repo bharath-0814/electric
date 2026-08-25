@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import "./signinpage.css";
-import { StationMap } from "../components/StationMap";
 import { GlassPillNav } from "../components/GlassPillNav";
 import { BookingModal } from "../components/BookingModal";
 import { BookingPassModal } from "../components/BookingPassModal";
@@ -122,7 +121,6 @@ export default function Signinpage() {
 
   const statsSection = useInView<HTMLDivElement>(0.3);
   const featSection  = useInView<HTMLDivElement>(0.15);
-  const stationSection = useInView<HTMLDivElement>(0.1);
 
   useEffect(() => {
     const fn = () => setScrollY(window.scrollY);
@@ -169,10 +167,6 @@ export default function Signinpage() {
     }
   };
 
-  const handleOpenBooking = (station: Station) => {
-    setBookingStation(station);
-  };
-
   const handleBookingSuccess = (reservation: Reservation) => {
     setBookingStation(null);
     setActiveReservationPass(reservation);
@@ -191,7 +185,7 @@ export default function Signinpage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
 
-      {/* ══════════════ TOP NAV (Apple-grade Glass Surface Pillbar) ══════════════ */}
+      {/* ══════════════ TOP NAV (Apple-grade Centered Glass Pillbar) ══════════════ */}
       <header
         className="fixed top-0 inset-x-0 z-50 transition-all duration-700"
         style={{
@@ -214,7 +208,7 @@ export default function Signinpage() {
             <span style={{ color: "#0052FF" }}>EV</span>ORA
           </a>
 
-          {/* Desktop Nav: Apple Glass Surface Pillbar - Perfectly Centered */}
+          {/* Desktop Nav: Apple Glass Surface Pillbar - Centered */}
           <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center justify-center pointer-events-auto z-10">
             <GlassPillNav navDark={navDark} />
           </div>
@@ -330,14 +324,14 @@ export default function Signinpage() {
                 Features
               </a>
               <a
-                href="#station"
+                href="#technology"
                 className="font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A]"
                 onClick={() => {
                   setMenuOpen(false);
-                  scrollToSection("station-section");
+                  scrollToSection("technology-section");
                 }}
               >
-                Stations & Map
+                Our Network
               </a>
               <button
                 className="text-left font-display text-xs font-semibold tracking-[0.16em] uppercase text-[#0A0A0A] cursor-pointer"
@@ -422,7 +416,7 @@ export default function Signinpage() {
 
             <div className="flex items-center gap-4 shrink-0">
               <button
-                onClick={() => scrollToSection("station-section")}
+                onClick={() => scrollToSection("features-section")}
                 className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
                 style={{
                   background: "#0052FF",
@@ -432,7 +426,7 @@ export default function Signinpage() {
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 48px rgba(0,82,255,0.6)")}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,82,255,0.45)")}
               >
-                Find Station
+                Explore Features
               </button>
               <button
                 onClick={() => scrollToSection("technology-section")}
@@ -527,37 +521,6 @@ export default function Signinpage() {
         </div>
       </section>
 
-      {/* ══════════════ TOMTOM EV CHARGING HUB EXPLORER ══════════════ */}
-      <section
-        id="station-section"
-        ref={stationSection.ref}
-        className="py-28 bg-[#0A0A0A] text-white border-b"
-        style={{ borderColor: "rgba(255,255,255,0.06)" }}
-      >
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
-            <div>
-              <div className="inline-flex items-center gap-2 mb-3">
-                <span className="w-5 h-px bg-[#0052FF]" />
-                <Label light>TomTom EV Network Intelligence & Booking</Label>
-              </div>
-              <h2 className="font-display font-bold text-white text-3xl md:text-5xl tracking-tight">
-                Locate. Route. <span className="text-gradient">Reserve.</span>
-              </h2>
-            </div>
-            <p className="text-sm text-neutral-400 max-w-md">
-              Real-time TomTom EV station availability, reachability simulation, and instant QR Fast-Pass reservation across high-power hubs.
-            </p>
-          </div>
-
-          <StationMap
-            onBookStation={handleOpenBooking}
-            userEmail={currentUser?.email}
-            onRequireAuth={handleRequireAuth}
-          />
-        </div>
-      </section>
-
       {/* ══════════════ FEATURES ══════════════ */}
       <section
         id="features-section"
@@ -583,20 +546,16 @@ export default function Signinpage() {
             </div>
             <div />
             <div className="flex justify-end items-end">
-              <a
-                href="#station-section"
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection("station-section");
-                }}
-                className="font-display font-semibold text-[11px] tracking-[0.15em] uppercase flex items-center gap-2 group transition-colors duration-300"
+              <button
+                onClick={() => scrollToSection("technology-section")}
+                className="font-display font-semibold text-[11px] tracking-[0.15em] uppercase flex items-center gap-2 group transition-colors duration-300 cursor-pointer"
                 style={{ color: "#0052FF" }}
               >
-                <span>Find A Station</span>
+                <span>Our Network</span>
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="transition-transform duration-300 group-hover:translate-x-1">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </a>
+              </button>
             </div>
           </div>
 
@@ -731,13 +690,13 @@ export default function Signinpage() {
 
             <div>
               <button
-                onClick={() => scrollToSection("station-section")}
+                onClick={() => setContactOpen(true)}
                 className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
                 style={{ background: "#0052FF", color: "#fff", boxShadow: "0 8px 32px rgba(0,82,255,0.35)" }}
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 44px rgba(0,82,255,0.55)")}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,82,255,0.35)")}
               >
-                Explore Live Stations
+                Connect with Evora
               </button>
             </div>
           </div>
@@ -790,7 +749,7 @@ export default function Signinpage() {
             </div>
 
             <button
-              onClick={() => scrollToSection("station-section")}
+              onClick={() => scrollToSection("features-section")}
               className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full w-fit border-2 transition-all duration-300 active:scale-95 group cursor-pointer"
               style={{ borderColor: "#0A0A0A", color: "#0A0A0A" }}
               onMouseEnter={e => {
@@ -802,7 +761,7 @@ export default function Signinpage() {
                 e.currentTarget.style.color = "#0A0A0A";
               }}
             >
-              Find a Station
+              Explore Features
             </button>
           </div>
         </div>
@@ -824,7 +783,7 @@ export default function Signinpage() {
 
           {/* Links */}
           {[
-            { title: "Product", links: ["Features", "Stations", "Pricing", "App"] },
+            { title: "Product", links: ["Features", "Network", "Pricing", "App"] },
             { title: "Company", links: ["About", "Careers", "Press", "Blog"] },
             { title: "Support", links: ["Help Center", "Contact", "Status", "Terms"] },
           ].map((col) => (
@@ -833,14 +792,14 @@ export default function Signinpage() {
               {col.links.map((l) => (
                 <a
                   key={l}
-                  href={l === "Stations" ? "#station-section" : l === "Features" ? "#features-section" : l === "About" ? "#about-section" : "#"}
+                  href={l === "Features" ? "#features-section" : l === "Network" ? "#technology-section" : l === "About" ? "#about-section" : "#"}
                   onClick={(e) => {
-                    if (l === "Stations") {
-                      e.preventDefault();
-                      scrollToSection("station-section");
-                    } else if (l === "Features") {
+                    if (l === "Features") {
                       e.preventDefault();
                       scrollToSection("features-section");
+                    } else if (l === "Network") {
+                      e.preventDefault();
+                      scrollToSection("technology-section");
                     } else if (l === "About") {
                       e.preventDefault();
                       scrollToSection("about-section");
