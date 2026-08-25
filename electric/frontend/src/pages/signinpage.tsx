@@ -161,18 +161,20 @@ export default function Signinpage() {
 
             <div className="flex items-center gap-4 shrink-0">
               <button
+                type="button"
                 onClick={() => scrollToSection("technology-section")}
-                className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer text-black bg-[#34d399] hover:bg-[#2ecc71] shadow-[0_8px_32px_rgba(52,211,153,0.4)] hover:shadow-[0_12px_44px_rgba(52,211,153,0.6)]"
+                className="font-display font-bold text-xs tracking-[0.14em] uppercase px-7 py-3.5 rounded-full transition-all duration-300 active:scale-95 cursor-pointer text-black bg-[#34d399] hover:bg-[#2ecc71] shadow-[0_6px_25px_rgba(52,211,153,0.4)] hover:shadow-[0_10px_35px_rgba(52,211,153,0.6)]"
               >
                 Our Network
               </button>
               <button
+                type="button"
                 onClick={() => scrollToSection("technology-section")}
-                className="font-display font-semibold text-[12px] tracking-[0.15em] uppercase flex items-center gap-2 transition-all duration-300 group cursor-pointer text-white/80 hover:text-white"
+                className="font-display font-semibold text-xs tracking-[0.14em] uppercase flex items-center gap-2 px-6 py-3.5 rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer text-white/85 hover:text-white"
               >
                 <span>Technology</span>
                 <svg
-                  width="16" height="16" viewBox="0 0 16 16" fill="none"
+                  width="14" height="14" viewBox="0 0 16 16" fill="none"
                   className="transition-transform duration-300 group-hover:translate-x-1"
                 >
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -266,11 +268,9 @@ export default function Signinpage() {
 
             <div>
               <button
+                type="button"
                 onClick={() => handleRequireAuth("Sign in to connect with Evora and unlock high-power charging.")}
-                className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
-                style={{ background: "#0052FF", color: "#fff", boxShadow: "0 8px 32px rgba(0,82,255,0.35)" }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 44px rgba(0,82,255,0.55)")}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,82,255,0.35)")}
+                className="font-display font-bold text-xs tracking-[0.14em] uppercase px-7 py-3.5 rounded-full transition-all duration-300 active:scale-95 cursor-pointer bg-[#0052FF] hover:bg-[#0041CC] text-white shadow-[0_6px_25px_rgba(0,82,255,0.35)] hover:shadow-[0_10px_35px_rgba(0,82,255,0.55)]"
               >
                 Connect with Evora
               </button>
@@ -325,17 +325,9 @@ export default function Signinpage() {
             </div>
 
             <button
+              type="button"
               onClick={() => scrollToSection("technology-section")}
-              className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full w-fit border-2 transition-all duration-300 active:scale-95 group cursor-pointer"
-              style={{ borderColor: "#0A0A0A", color: "#0A0A0A" }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = "#0A0A0A";
-                e.currentTarget.style.color = "#fff";
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "#0A0A0A";
-              }}
+              className="font-display font-bold text-xs tracking-[0.14em] uppercase px-7 py-3.5 rounded-full w-fit border-2 border-[#0A0A0A] text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white transition-all duration-300 active:scale-95 cursor-pointer"
             >
               Our Network
             </button>
