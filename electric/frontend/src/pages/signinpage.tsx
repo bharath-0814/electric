@@ -93,14 +93,68 @@ function StatBlock({
 }
 
 /* ═══════════════════════════════════════
-   App
+   Vehicle Finishes & Dynamic Palettes
 ═══════════════════════════════════════ */
 
-const HERO_IMG    = "https://images.unsplash.com/photo-1704476944918-c1258561ebb9?w=1920&h=1080&fit=crop&auto=format&q=90";
+interface VehicleFinish {
+  id: string;
+  name: string;
+  swatchHex: string;
+  glowColor: string;
+  accentColor: string;
+  imageUrl: string;
+}
+
+const VEHICLE_FINISHES: VehicleFinish[] = [
+  {
+    id: 'stealth-onyx',
+    name: 'Stealth Onyx',
+    swatchHex: '#1E1E24',
+    glowColor: 'rgba(0, 82, 255, 0.22)',
+    accentColor: '#0052FF',
+    imageUrl: 'https://images.unsplash.com/photo-1704476944918-c1258561ebb9?w=1920&h=1080&fit=crop&auto=format&q=90',
+  },
+  {
+    id: 'sapphire-blue',
+    name: 'Electric Sapphire',
+    swatchHex: '#2563EB',
+    glowColor: 'rgba(37, 99, 235, 0.35)',
+    accentColor: '#38aaff',
+    imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=1920&h=1080&fit=crop&auto=format&q=90',
+  },
+  {
+    id: 'emerald-cyber',
+    name: 'Emerald Matrix',
+    swatchHex: '#059669',
+    glowColor: 'rgba(16, 185, 129, 0.35)',
+    accentColor: '#34d399',
+    imageUrl: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=1920&h=1080&fit=crop&auto=format&q=90',
+  },
+  {
+    id: 'liquid-copper',
+    name: 'Liquid Copper',
+    swatchHex: '#EA580C',
+    glowColor: 'rgba(234, 88, 12, 0.35)',
+    accentColor: '#fb923c',
+    imageUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1920&h=1080&fit=crop&auto=format&q=90',
+  },
+  {
+    id: 'cyber-violet',
+    name: 'Cyber Violet',
+    swatchHex: '#8B5CF6',
+    glowColor: 'rgba(139, 92, 246, 0.35)',
+    accentColor: '#a78bfa',
+    imageUrl: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=1920&h=1080&fit=crop&auto=format&q=90',
+  },
+];
+
 const NIGHT_IMG   = "https://images.unsplash.com/photo-1748843765943-27ef9aad505d?w=1200&h=900&fit=crop&auto=format&q=90";
 const NEON_IMG    = "https://images.unsplash.com/photo-1776610148977-07b1e2dca438?w=1200&h=900&fit=crop&auto=format&q=90";
 
 export default function Signinpage() {
+  // Vehicle selected finish state
+  const [selectedFinish, setSelectedFinish] = useState<VehicleFinish>(VEHICLE_FINISHES[0]);
+
   // User auth state
   const [currentUser, setCurrentUser] = useState<EvoraUser | null>(null);
 
@@ -182,27 +236,42 @@ export default function Signinpage() {
         onOpenContact={() => setContactOpen(true)}
       />
 
-      {/* ══════════════ HERO ══════════════ */}
+      {/* ══════════════ HERO SECTION (DYNAMIC VEHICLE FINISH CHANGER) ══════════════ */}
       <section id="home" className="relative h-screen min-h-175 flex items-end overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src={HERO_IMG}
-            alt="Evora electric vehicle"
-            className="w-full h-full object-cover object-center"
-            style={{ filter: "brightness(0.82)" }}
+        {/* Dynamic Cross-Fading Vehicle Images */}
+        <div className="absolute inset-0 bg-black">
+          {VEHICLE_FINISHES.map((finish) => (
+            <img
+              key={finish.id}
+              src={finish.imageUrl}
+              alt={`${finish.name} vehicle`}
+              className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ease-in-out ${
+                selectedFinish.id === finish.id ? 'opacity-90 scale-100' : 'opacity-0 scale-105 pointer-events-none'
+              }`}
+              style={{ filter: "brightness(0.85)" }}
+            />
+          ))}
+
+          {/* Dynamic Illumination Aura reflecting selected vehicle finish */}
+          <div
+            className="absolute inset-0 transition-all duration-700 ease-in-out pointer-events-none"
+            style={{
+              background: `radial-gradient(circle at 75% 65%, ${selectedFinish.glowColor} 0%, transparent 60%)`,
+            }}
           />
+
           <div className="absolute inset-0" style={{
-            background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.1) 100%)"
+            background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.1) 100%)"
           }} />
           <div className="absolute inset-0" style={{
-            background: "linear-gradient(to right, rgba(0,0,0,0.55) 0%, transparent 55%)"
+            background: "linear-gradient(to right, rgba(0,0,0,0.65) 0%, transparent 55%)"
           }} />
         </div>
 
         <div className="relative w-full max-w-7xl mx-auto px-8 pb-20">
           <div className="fade-in mb-6" style={{ animationDelay: "200ms" }}>
             <div className="inline-flex items-center gap-3">
-              <span className="w-6 h-px" style={{ background: "#0052FF" }} />
+              <span className="w-6 h-px" style={{ background: selectedFinish.accentColor }} />
               <Label light>Next-Generation EV Charging</Label>
             </div>
           </div>
@@ -221,7 +290,7 @@ export default function Signinpage() {
               className="block overflow-hidden"
               style={{ animation: "maskReveal 1.1s 0.6s cubic-bezier(0.77,0,0.175,1) both" }}
             >
-              <em style={{ fontStyle: "normal", color: "#0052FF" }}>Next</em> Electric
+              <em style={{ fontStyle: "normal", color: selectedFinish.accentColor }}>Next</em> Electric
             </span>
             <span
               className="block overflow-hidden"
@@ -235,7 +304,7 @@ export default function Signinpage() {
             className="flex flex-col sm:flex-row items-start sm:items-center gap-8"
             style={{ animation: "fadeUp 0.8s 1.2s cubic-bezier(0.16,1,0.3,1) both" }}
           >
-            <p style={{ color: "rgba(255,255,255,0.6)", maxWidth: "340px", lineHeight: 1.7, fontSize: "15px" }}>
+            <p style={{ color: "rgba(255,255,255,0.65)", maxWidth: "340px", lineHeight: 1.7, fontSize: "15px" }}>
               High-power 150-350kW liquid-cooled charging hubs connected to an intelligent renewable grid with TomTom EV route intelligence.
             </p>
 
@@ -244,12 +313,12 @@ export default function Signinpage() {
                 onClick={() => scrollToSection("features-section")}
                 className="font-display font-bold text-[12px] tracking-[0.15em] uppercase px-8 py-4 rounded-full transition-all duration-300 active:scale-95 cursor-pointer"
                 style={{
-                  background: "#0052FF",
+                  background: selectedFinish.accentColor,
                   color: "#fff",
-                  boxShadow: "0 8px 32px rgba(0,82,255,0.45)",
+                  boxShadow: `0 8px 32px ${selectedFinish.glowColor}`,
                 }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 48px rgba(0,82,255,0.6)")}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,82,255,0.45)")}
+                onMouseEnter={e => (e.currentTarget.style.boxShadow = `0 12px 48px ${selectedFinish.glowColor}`)}
+                onMouseLeave={e => (e.currentTarget.style.boxShadow = `0 8px 32px ${selectedFinish.glowColor}`)}
               >
                 Explore Features
               </button>
@@ -270,19 +339,58 @@ export default function Signinpage() {
           </div>
         </div>
 
+        {/* ══════════════ INTERACTIVE VEHICLE FINISH SELECTOR ══════════════ */}
         <div
-          className="absolute bottom-20 right-8 md:right-16 hidden lg:flex items-center gap-4"
+          className="absolute bottom-20 right-8 md:right-16 hidden lg:flex items-center gap-4 z-20"
           style={{ animation: "fadeIn 0.8s 1.8s ease both" }}
         >
-          <div className="flex -space-x-2.5">
-            {["#d4a889", "#8baee8", "#a3d4b8", "#e8b4a0", "#b8a0e8"].map((c, i) => (
-              <div key={i} className="w-8 h-8 rounded-full border-2"
-                style={{ background: c, borderColor: "rgba(0,0,0,0.3)" }} />
-            ))}
-          </div>
-          <div>
-            <div className="font-display text-xl font-bold" style={{ color: "#fff" }}>102K+</div>
-            <div className="text-[10px] tracking-widest uppercase font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>Verified Reviews</div>
+          {/* Liquid Glass Finish Selector Capsule */}
+          <div
+            className="flex items-center gap-3 px-4 py-2.5 rounded-full border border-white/16 shadow-[0_20px_50px_rgba(0,0,0,0.85)] transition-all duration-300"
+            style={{
+              background: 'rgba(14, 14, 20, 0.78)',
+              backdropFilter: 'blur(32px) saturate(220%)',
+              WebkitBackdropFilter: 'blur(32px) saturate(220%)',
+              boxShadow: '0 20px 50px -10px rgba(0,0,0,0.8), inset 0 1px 1.5px rgba(255,255,255,0.35)',
+            }}
+          >
+            <span className="text-[10px] font-display font-bold uppercase tracking-widest text-neutral-400">
+              Color
+            </span>
+
+            {/* Interactive Swatch Dots */}
+            <div className="flex items-center gap-2">
+              {VEHICLE_FINISHES.map((finish) => {
+                const isSelected = selectedFinish.id === finish.id;
+                return (
+                  <button
+                    key={finish.id}
+                    type="button"
+                    onClick={() => setSelectedFinish(finish)}
+                    className={`w-6 h-6 rounded-full transition-all duration-300 cursor-pointer relative flex items-center justify-center ${
+                      isSelected
+                        ? 'scale-125 ring-2 ring-white shadow-[0_0_12px_rgba(255,255,255,0.7)] z-10'
+                        : 'opacity-70 hover:opacity-100 hover:scale-110'
+                    }`}
+                    style={{
+                      background: finish.swatchHex,
+                      border: isSelected ? '2px solid #ffffff' : '1.5px solid rgba(255,255,255,0.3)',
+                    }}
+                    title={`Switch to ${finish.name}`}
+                    aria-label={`Select ${finish.name}`}
+                  />
+                );
+              })}
+            </div>
+
+            <div className="w-[1px] h-4 bg-white/20" />
+
+            <div className="flex flex-col">
+              <span className="text-[11px] font-display font-bold text-white leading-tight">
+                {selectedFinish.name}
+              </span>
+              <span className="text-[9px] font-mono text-neutral-400">102K+ Reviews</span>
+            </div>
           </div>
         </div>
 
