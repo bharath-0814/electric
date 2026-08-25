@@ -2,6 +2,8 @@ import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import {
   getAuth,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -28,7 +30,7 @@ try {
   auth = getAuth(app);
   googleProvider = new GoogleAuthProvider();
   googleProvider.setCustomParameters({ prompt: 'select_account' });
-  console.log('[Evora Firebase] Firebase Auth initialized with electric-36ba4 project.');
+  console.log('[Evora Firebase] Initialized successfully.');
 } catch (err) {
   console.warn('[Evora Firebase] Initialization warning:', err);
 }
@@ -55,6 +57,28 @@ export const authService = {
     }
   },
 
+  // Check for redirect result on page load (if popup was blocked)
+  async checkRedirectResult(): Promise<EvoraUser | null> {
+    if (!auth) return null;
+    try {
+      const result = await getRedirectResult(auth);
+      if (result && result.user) {
+        const user: EvoraUser = {
+          uid: result.user.uid,
+          email: result.user.email || 'user@evora.energy',
+          displayName: result.user.displayName || 'Evora Driver',
+          photoURL: result.user.photoURL || undefined,
+          isDemo: false,
+        };
+        localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
+        return user;
+      }
+    } catch (err) {
+      console.warn('[Evora Firebase] Redirect check:', err);
+    }
+    return null;
+  },
+
   async loginWithGoogle(): Promise<EvoraUser> {
     if (auth && googleProvider) {
       try {
@@ -69,12 +93,29 @@ export const authService = {
         localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
         return user;
       } catch (err: any) {
-        console.error('[Evora Firebase] Google sign-in error:', err);
+        console.warn('[Evora Firebase] Popup blocked or failed, attempting redirect mode...', err);
+        // If popup was blocked by browser, automatically fall back to redirect
+        if (
+          err.code === 'auth/popup-blocked' ||
+          err.code === 'auth/cancelled-popup-request' ||
+          err.code === 'auth/popup-closed-by-user'
+        ) {
+          try {
+            await signInWithRedirect(auth, googleProvider);
+            // signInWithRedirect redirects the window, return temporary user
+            return {
+              uid: 'redirecting',
+              email: '',
+              displayName: 'Redirecting to Google...',
+            };
+          } catch (redirectErr: any) {
+            throw redirectErr;
+          }
+        }
         throw err;
       }
     }
 
-    // Fallback if popup blocked
     const demoUser: EvoraUser = {
       uid: 'demo-google-user-101',
       email: 'alex.chen@evora.energy',

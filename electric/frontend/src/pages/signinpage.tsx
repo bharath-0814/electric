@@ -130,8 +130,11 @@ export default function Signinpage() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  // Sync Firebase / User
+  // Sync Firebase / User & Check Redirect Login
   useEffect(() => {
+    authService.checkRedirectResult().then((user) => {
+      if (user) setCurrentUser(user);
+    });
     const unsub = authService.subscribe((user) => {
       setCurrentUser(user);
     });
