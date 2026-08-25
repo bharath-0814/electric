@@ -1,42 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "./signinpage.css";
 import { FloatingGlassNav } from "../components/FloatingGlassNav";
 import { AuthModal } from "../components/AuthModal";
 import { UserProfileModal } from "../components/UserProfileModal";
 import { authService, type EvoraUser } from "../lib/firebase";
-
-function useInView<T extends HTMLElement>(threshold = 0.2) {
-  const ref = useRef<T>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); io.disconnect(); } },
-      { threshold }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [threshold]);
-  return { ref, visible };
-}
-
-function useCounter(target: number, duration = 2200, active = false) {
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let t0: number | null = null;
-    const tick = (ts: number) => {
-      if (!t0) t0 = ts;
-      const p = Math.min((ts - t0) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 4);
-      setN(Math.round(ease * target));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [target, duration, active]);
-  return n;
-}
 
 function Rule({ light = false, className = "" }: { light?: boolean; className?: string }) {
   return (
@@ -59,34 +26,6 @@ function Label({ children, light = false, className = "" }: { children: string; 
   );
 }
 
-// Animated counter stat
-function StatBlock({
-  value, suffix, label, active, delay = 0, light = false,
-}: {
-  value: number; suffix: string; label: string; active: boolean; delay?: number; light?: boolean;
-}) {
-  const n = useCounter(value, 2000, active);
-  return (
-    <div
-      className="flex flex-col gap-2 py-10 px-8 border-r last:border-r-0"
-      style={{
-        borderColor: light ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
-        opacity: active ? 1 : 0,
-        animation: active ? `countUp 0.7s ${delay}ms cubic-bezier(0.16,1,0.3,1) both` : "none",
-      }}
-    >
-      <span
-        className="font-display text-5xl md:text-6xl font-bold tracking-tight leading-none"
-        style={{ color: light ? "#fff" : "#0A0A0A" }}
-      >
-        {n.toLocaleString()}
-        <span style={{ color: "#34d399" }}>{suffix}</span>
-      </span>
-      <Label light={light}>{label}</Label>
-    </div>
-  );
-}
-
 /* ═══════════════════════════════════════
    Static Background Images
 ═══════════════════════════════════════ */
@@ -105,8 +44,6 @@ export default function Signinpage() {
   const [authPromptReason, setAuthPromptReason] = useState<string>("");
   const [pendingAuthAction, setPendingAuthAction] = useState<(() => void) | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
-
-  const statsSection = useInView<HTMLDivElement>(0.3);
 
   // Sync Firebase / User & Check Redirect Login
   useEffect(() => {
@@ -248,27 +185,11 @@ export default function Signinpage() {
         {/* Scroll indicator */}
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
-          onClick={() => scrollToSection("stats-section")}
+          onClick={() => scrollToSection("technology-section")}
           style={{ animation: "fadeIn 1s 2.2s ease both" }}
         >
           <div className="w-px h-10 bg-gradient-to-b from-transparent to-white/40"
             style={{ animation: "floatY 2s ease-in-out infinite" }} />
-        </div>
-      </section>
-
-      {/* ══════════════ STATS ══════════════ */}
-      <section
-        id="stats-section"
-        ref={statsSection.ref}
-        className="bg-[#FAFAFA] border-b"
-        style={{ borderColor: "rgba(0,0,0,0.06)" }}
-      >
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5">
-          <StatBlock value={570}  suffix="+"  label="Premium Locations"   active={statsSection.visible} delay={0}   />
-          <StatBlock value={2200} suffix="+"  label="High-Power Chargers" active={statsSection.visible} delay={100} />
-          <StatBlock value={1200} suffix="+"  label="DC Fast Chargers"    active={statsSection.visible} delay={200} />
-          <StatBlock value={1400} suffix="+"  label="Level 2 Chargers"    active={statsSection.visible} delay={300} />
-          <StatBlock value={24}   suffix="/7" label="Station Reliability" active={statsSection.visible} delay={400} />
         </div>
       </section>
 
