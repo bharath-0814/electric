@@ -27,7 +27,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const { showToast } = useToast();
 
-  // Close on Escape key
+  // Keyboard shortcut (Escape to close)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -103,35 +103,39 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       role="dialog"
       aria-modal="true"
     >
-      {/* ── Apple Liquid Glass Card (Responsive & Proportionate) ── */}
+      {/* Dynamic Ambient Background Illumination Behind Modal */}
+      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#0052FF]/20 blur-[120px] pointer-events-none -top-20 -left-20 animate-pulse" />
+      <div className="absolute w-[400px] h-[400px] rounded-full bg-[#34d399]/15 blur-[100px] pointer-events-none -bottom-20 -right-20" />
+
+      {/* ── ReactBits Liquid Glass Canvas ── */}
       <div
-        className="relative w-full max-w-[94vw] sm:max-w-lg md:max-w-[520px] my-auto rounded-[28px] sm:rounded-[36px] p-6 sm:p-8 md:p-10 text-white shadow-[0_32px_100px_rgba(0,0,0,0.92)] flex flex-col gap-5 sm:gap-6 transition-all duration-300 select-none overflow-hidden"
+        className="relative w-full max-w-[94vw] sm:max-w-lg md:max-w-[490px] my-auto rounded-[32px] sm:rounded-[36px] p-7 sm:p-9 md:p-10 text-white shadow-[0_35px_120px_-20px_rgba(0,0,0,0.95)] flex flex-col gap-5 sm:gap-6 transition-all duration-300 select-none overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'rgba(14, 14, 20, 0.86)',
-          backdropFilter: 'blur(48px) saturate(240%)',
-          WebkitBackdropFilter: 'blur(48px) saturate(240%)',
-          border: '1px solid rgba(255, 255, 255, 0.18)',
+          background: 'rgba(15, 15, 24, 0.82)',
+          backdropFilter: 'blur(50px) saturate(240%)',
+          WebkitBackdropFilter: 'blur(50px) saturate(240%)',
+          border: '1px solid rgba(255, 255, 255, 0.20)',
           boxShadow:
-            '0 32px 100px -10px rgba(0, 0, 0, 0.95), inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.38), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.65), 0 0 50px rgba(0, 82, 255, 0.15)',
+            '0 35px 120px -20px rgba(0, 0, 0, 0.95), inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.45), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.7), 0 0 50px rgba(0, 82, 255, 0.16)',
           animation: 'fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
         }}
       >
         {/* Top Edge Specular Refraction Highlight Line */}
-        <div className="absolute inset-x-12 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/55 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-10 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none" />
 
-        {/* ── 1. Header ── */}
+        {/* ── 1. Top Brand & Status Header ── */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
-              <div className="font-display text-2xl font-bold tracking-[0.14em] uppercase">
+              <div className="font-display text-2xl font-bold tracking-[0.14em] uppercase text-white">
                 <span className="text-[#0052FF]">EV</span>ORA
               </div>
-              <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono font-semibold text-neutral-300 bg-white/8 border border-white/12 px-3 py-1 rounded-full shadow-inner">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#38aaff]" /> Turso Edge SQL
+              <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono font-semibold text-neutral-200 bg-white/[0.08] border border-white/15 px-3 py-1 rounded-full shadow-inner">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#38aaff]" /> Turso Cloud SQL
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed max-w-[380px]">
+            <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed max-w-[360px]">
               {promptReason ||
                 (mode === 'login'
                   ? 'Sign in to access high-power charging reservations, digital QR passes, and cloud vehicle specs.'
@@ -142,20 +146,59 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white/8 hover:bg-white/16 text-neutral-400 hover:text-white transition-all flex items-center justify-center cursor-pointer shrink-0 border border-white/10"
+            className="w-9 h-9 rounded-full bg-white/8 hover:bg-white/16 text-neutral-400 hover:text-white transition-all flex items-center justify-center cursor-pointer shrink-0 border border-white/12 hover:scale-105"
             aria-label="Close"
           >
-            <X className="w-4.5 h-4.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* ── 2. Primary Google Auth Button ── */}
+        {/* ── 2. Segmented Liquid Glass Mode Tabs ── */}
+        <div className="grid grid-cols-2 p-1 rounded-2xl bg-white/[0.05] border border-white/10 relative">
+          <button
+            type="button"
+            onClick={() => setMode('login')}
+            className={`relative py-2.5 rounded-xl font-display text-xs font-bold tracking-[0.12em] uppercase transition-all duration-300 cursor-pointer ${
+              mode === 'login'
+                ? 'text-white shadow-[0_4px_20px_rgba(0,82,255,0.4)]'
+                : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            {mode === 'login' && (
+              <div
+                className="absolute inset-0 rounded-xl bg-[#0052FF] border border-[#38aaff]/50 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                style={{ animation: 'fadeIn 0.2s ease-out' }}
+              />
+            )}
+            <span className="relative z-10">Sign In</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMode('signup')}
+            className={`relative py-2.5 rounded-xl font-display text-xs font-bold tracking-[0.12em] uppercase transition-all duration-300 cursor-pointer ${
+              mode === 'signup'
+                ? 'text-white shadow-[0_4px_20px_rgba(0,82,255,0.4)]'
+                : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            {mode === 'signup' && (
+              <div
+                className="absolute inset-0 rounded-xl bg-[#0052FF] border border-[#38aaff]/50 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                style={{ animation: 'fadeIn 0.2s ease-out' }}
+              />
+            )}
+            <span className="relative z-10">Create Account</span>
+          </button>
+        </div>
+
+        {/* ── 3. Quick Auth Buttons ── */}
         <div className="flex flex-col gap-2.5">
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full h-13 rounded-2xl bg-white hover:bg-neutral-100 text-black font-display text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-3 transition-all shadow-[0_4px_20px_rgba(255,255,255,0.2)] active:scale-[0.98] cursor-pointer hover:shadow-[0_8px_30px_rgba(255,255,255,0.3)]"
+            className="w-full h-13 rounded-2xl bg-white hover:bg-neutral-100 text-black font-display text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-3 transition-all shadow-[0_4px_20px_rgba(255,255,255,0.2)] active:scale-[0.98] cursor-pointer hover:shadow-[0_8px_30px_rgba(255,255,255,0.3)] hover:scale-[1.01]"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -189,7 +232,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </div>
 
-        {/* ── 3. Hairline Divider ── */}
+        {/* ── 4. Hairline Divider ── */}
         <div className="flex items-center gap-4 my-0.5">
           <div className="flex-1 h-[1px] bg-white/10" />
           <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
@@ -198,10 +241,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="flex-1 h-[1px] bg-white/10" />
         </div>
 
-        {/* ── 4. Form Inputs ── */}
+        {/* ── 5. Liquid Glass Floating Input Form ── */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
           {mode === 'signup' && (
-            <div className="flex items-center h-13 rounded-2xl bg-white/[0.04] border border-white/12 focus-within:border-[#0052FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all px-4 gap-3.5">
+            <div className="flex items-center h-13 rounded-2xl bg-white/[0.05] border border-white/14 focus-within:border-[#0052FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all px-4 gap-3.5 shadow-inner">
               <User className="w-4.5 h-4.5 text-neutral-400 shrink-0" />
               <input
                 type="text"
@@ -213,7 +256,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          <div className="flex items-center h-13 rounded-2xl bg-white/[0.04] border border-white/12 focus-within:border-[#0052FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all px-4 gap-3.5">
+          <div className="flex items-center h-13 rounded-2xl bg-white/[0.05] border border-white/14 focus-within:border-[#0052FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all px-4 gap-3.5 shadow-inner">
             <Mail className="w-4.5 h-4.5 text-neutral-400 shrink-0" />
             <input
               type="email"
@@ -224,7 +267,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             />
           </div>
 
-          <div className="flex items-center h-13 rounded-2xl bg-white/[0.04] border border-white/12 focus-within:border-[#0052FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all px-4 gap-3.5">
+          <div className="flex items-center h-13 rounded-2xl bg-white/[0.05] border border-white/14 focus-within:border-[#0052FF] focus-within:bg-white/[0.08] focus-within:ring-4 focus-within:ring-[#0052FF]/20 transition-all px-4 gap-3.5 shadow-inner">
             <Lock className="w-4.5 h-4.5 text-neutral-400 shrink-0" />
             <input
               type="password"
@@ -238,23 +281,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-13 mt-1.5 rounded-2xl bg-[#0052FF] hover:bg-[#0041CC] text-white font-display font-bold text-xs sm:text-sm uppercase tracking-widest transition-all shadow-[0_8px_30px_rgba(0,82,255,0.45)] hover:shadow-[0_12px_40px_rgba(0,82,255,0.65)] flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+            className="w-full h-13 mt-1.5 rounded-2xl bg-gradient-to-r from-[#0052FF] to-[#1E6BFF] hover:from-[#0047DB] hover:to-[#0052FF] text-white font-display font-bold text-xs sm:text-sm uppercase tracking-widest transition-all shadow-[0_8px_30px_rgba(0,82,255,0.5)] hover:shadow-[0_12px_45px_rgba(0,82,255,0.7)] flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] hover:scale-[1.01]"
           >
-            {loading ? 'Authenticating...' : mode === 'login' ? 'Sign In' : 'Create Account'}
+            {loading ? 'Authenticating...' : mode === 'login' ? 'Sign In to Evora' : 'Create Driver Account'}
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        {/* ── 5. Footer Switcher ── */}
-        <div className="text-center text-xs sm:text-sm text-neutral-300 font-display pt-1">
-          {mode === 'login' ? "Don't have an account? " : 'Already registered? '}
-          <button
-            type="button"
-            onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-            className="text-[#38aaff] font-bold hover:underline cursor-pointer ml-1"
-          >
-            {mode === 'login' ? 'Create one here' : 'Sign in'}
-          </button>
+        {/* ── 6. Footer Disclaimer ── */}
+        <div className="text-center text-xs text-neutral-400 font-display pt-1">
+          Secured by Google Identity & Turso Encrypted Storage
         </div>
       </div>
     </div>
